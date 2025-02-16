@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <title>The Million Things You Can Do On Microsoft Fabric</title>
+    <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
+
     <div class="logomain">
     <img src="articles/fabric_48_color.svg" width="170" height="150" alt="team_logo_lar"></div>
     <div class="header-container">
         <h4>The Million Things You Can Do On Microsoft Fabric</h4>
     </div>
-    <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon">
     </div>
     <style>
         body {
@@ -103,8 +105,13 @@
         }
 
         .box:hover {
-            transform: scale(1.05);
+            
             background-color: #f8f8f8;
+            display:table;
+            height:105px;
+            font-size:15px;
+                font-weight:bold;
+                
         }
 
         .nav-buttons {
@@ -249,13 +256,28 @@
             ]
         };
 
-        // Function to Populate Boxes
+        // Function to Populate Boxes with Clickable Links
         function populateBoxes(sectionId, topics) {
             const container = document.getElementById(sectionId);
             topics.forEach(topic => {
                 const box = document.createElement("div");
                 box.classList.add("box");
-                box.innerHTML = `<h3>${topic}</h3><p>Click for more info</p>`;
+
+                // Create a link that wraps the entire box
+                const link = document.createElement("a");
+                link.href = `articles/${topic.replace(/\s+/g, '-').toLowerCase()}.html`; // Converts topic name to a filename
+                link.target = "_blank"; // Opens in a new tab
+                link.style.textDecoration = "none"; // Removes underline
+                link.style.color = "inherit"; // Keeps text color the same
+                link.style.display = "block"; // Ensures the entire box is clickable
+                link.style.width = "100%";
+                link.style.height = "100%";
+
+                // Add the topic text inside the link
+                link.innerHTML = `<h3>${topic}</h3><p>Click for more info</p>`;
+
+                // Append the link inside the box
+                box.appendChild(link);
                 container.appendChild(box);
             });
         }
@@ -265,6 +287,7 @@
         populateBoxes("security-boxes", data.security);
         populateBoxes("howto-boxes", data.howto);
         populateBoxes("general-boxes", data.general);
+
 
         // Scroll Functions
         function scrollLeft(containerId) {
