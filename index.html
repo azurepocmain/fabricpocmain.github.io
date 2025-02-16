@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Azure Synapse Troubleshooting Workflow</title>
+    <link rel="icon" href="articles/Azure-Synapse-Analytics.svg" type="image/x-icon">
+    <style>
+        body {
+            background-color: #FFF;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        h2 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .box {
+            min-width: 250px;
+            height: 120px;
+            border: 2px solid #888;
+            background: linear-gradient(to bottom, #ffffff, #e1e1e1);
+            box-shadow: 0 0 5px #888;
+            text-align: center;
+            padding: 10px;
+            flex: 1;
+            transition: transform 0.3s;
+        }
+
+        .box:hover {
+            transform: scale(1.05);
+            background-color: #f8f8f8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .nav-buttons button {
+            padding: 8px 15px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #0078D4;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #005a9e;
+        }
+
+        .footer {
+            margin-top: 50px;
+            background-color: #333;
+            color: white;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Azure Synapse Troubleshooting Workflow</h1>
+
+        <!-- Performance Section -->
+        <div class="section">
+            <h2>Performance</h2>
+            <div class="box-container" id="performance-boxes">
+                <!-- Boxes dynamically added via JavaScript -->
+            </div>
+            <div class="nav-buttons">
+                <button onclick="scrollLeft('performance-boxes')">⬅ Prev</button>
+                <button onclick="scrollRight('performance-boxes')">Next ➡</button>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="section">
+            <h2>Security</h2>
+            <div class="box-container" id="security-boxes">
+                <!-- Boxes dynamically added via JavaScript -->
+            </div>
+            <div class="nav-buttons">
+                <button onclick="scrollLeft('security-boxes')">⬅ Prev</button>
+                <button onclick="scrollRight('security-boxes')">Next ➡</button>
+            </div>
+        </div>
+
+        <!-- How-To Section -->
+        <div class="section">
+            <h2>How-To</h2>
+            <div class="box-container" id="howto-boxes">
+                <!-- Boxes dynamically added via JavaScript -->
+            </div>
+            <div class="nav-buttons">
+                <button onclick="scrollLeft('howto-boxes')">⬅ Prev</button>
+                <button onclick="scrollRight('howto-boxes')">Next ➡</button>
+            </div>
+        </div>
+
+        <!-- General Section -->
+        <div class="section">
+            <h2>General</h2>
+            <div class="box-container" id="general-boxes">
+                <!-- Boxes dynamically added via JavaScript -->
+            </div>
+            <div class="nav-buttons">
+                <button onclick="scrollLeft('general-boxes')">⬅ Prev</button>
+                <button onclick="scrollRight('general-boxes')">Next ➡</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Created by Data & AI CSA: Victor Adeyanju
+    </div>
+
+    <script>
+        // Sample Data for Each Section
+        const data = {
+            "performance": [
+                "Query Optimization",
+                "Data Skew Issues",
+                "Indexing Strategies",
+                "Parallel Execution",
+                "Memory Usage",
+                "TempDB Overflow",
+                "Distributed Queries",
+                "Execution Plan Analysis",
+                "Concurrency Issues",
+                "Partitioning Strategy"
+            ],
+            "security": [
+                "Role-Based Access Control",
+                "Audit Logging",
+                "Encryption at Rest",
+                "Data Masking",
+                "Network Security",
+                "Firewall Rules",
+                "Multi-Factor Authentication",
+                "Access Token Issues",
+                "Data Exfiltration Protection",
+                "Least Privilege Enforcement"
+            ],
+            "howto": [
+                "Connect to Synapse",
+                "Set up a Spark Pool",
+                "Use Synapse Notebooks",
+                "Load Data with COPY",
+                "Configure Data Lake Access",
+                "Optimize ETL Workflows",
+                "Create External Tables",
+                "Monitor Query Performance",
+                "Manage Workspaces",
+                "Automate Pipelines"
+            ],
+            "general": [
+                "What is Synapse?",
+                "Supported Data Formats",
+                "Comparison with Databricks",
+                "Common Error Codes",
+                "Performance Best Practices",
+                "Networking Considerations",
+                "Backup & Restore",
+                "Handling Large Datasets",
+                "Integration with Power BI",
+                "Future Roadmap"
+            ]
+        };
+
+        // Function to Populate Boxes
+        function populateBoxes(sectionId, topics) {
+            const container = document.getElementById(sectionId);
+            topics.forEach(topic => {
+                const box = document.createElement("div");
+                box.classList.add("box");
+                box.innerHTML = `<h3>${topic}</h3><p>Click for more info</p>`;
+                container.appendChild(box);
+            });
+        }
+
+        // Populate All Sections
+        populateBoxes("performance-boxes", data.performance);
+        populateBoxes("security-boxes", data.security);
+        populateBoxes("howto-boxes", data.howto);
+        populateBoxes("general-boxes", data.general);
+
+        // Scroll Functions
+        function scrollLeft(containerId) {
+            document.getElementById(containerId).scrollBy({ left: -300, behavior: 'smooth' });
+        }
+
+        function scrollRight(containerId) {
+            document.getElementById(containerId).scrollBy({ left: 300, behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>
