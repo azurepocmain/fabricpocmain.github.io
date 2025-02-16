@@ -1,1 +1,1 @@
-
+# Querying Fabric OneLake Fast
