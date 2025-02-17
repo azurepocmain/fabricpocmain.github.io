@@ -20,7 +20,7 @@ Here is the DDL and path from the Fabric LakeHouse that is used to create the ex
 ![image](https://github.com/user-attachments/assets/bf001ec6-ba5a-45e5-a587-a4e360426eb6)
 ![image](https://github.com/user-attachments/assets/1614a305-5348-45c3-b2a1-53c319786db8)
 
-
+External Table creation DDL: 
 <pre>
 .create external table Address2
 (
