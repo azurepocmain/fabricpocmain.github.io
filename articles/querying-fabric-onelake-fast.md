@@ -4,7 +4,10 @@ Microsoft Fabric OneLake's Lakehouse SQL analytics endpoint offers a unified loc
 
 However, it is essential to note that the SQL analytics endpoint depends on background processes to synchronize the metadata of delta parquet files. For big data processes that do not use the endpoint and read directly from OneLake, this synchronization is not an issue. Conversely, for systems that rely on the Lakehouse SQL analytics endpoint and necessitate near real-time responses (e.g., 5-15 seconds), this can present a unique challenge.
 
-Reference: https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance 
+Reference: https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance <br>
+
+Reference:  <a href="[https://example.com](https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance )" target="_blank">sql-analytics-endpoint-performance </a>
+
 
 In response to the growing demand for HTAP systems—hybrid systems combining OLTP and OLAP functionalities—this document offers an alternative to the Lakehouse SQL analytics endpoint for scenarios requiring near real-time data querying within the OneLake Lakehouse.
 _______________________________________________________________________________________
