@@ -16,6 +16,11 @@ ________________________________________________________________________________
 Fabric Eventhouse offers a unique solution with the capability to query large data volumes in near real time. This is achieved by bypassing the SQL analytics endpoint and directly querying the data from OneLake storage, similar to Spark.
 How is this accomplished, you may ask? Through the use of external tables. Below is a DDL example illustrating how to create an external table in Eventhouse to directly query data from the OneLake Lakehouse storage. This approach eliminates the dependency on the SQL analytics endpoint and the synchronization process.
 
+Here is the DDL and path from the Fabric LakeHouse that is used to create the external table:
+![image](https://github.com/user-attachments/assets/bf001ec6-ba5a-45e5-a587-a4e360426eb6)
+![image](https://github.com/user-attachments/assets/1614a305-5348-45c3-b2a1-53c319786db8)
+
+
 <pre>
 .create external table Address2
 (
