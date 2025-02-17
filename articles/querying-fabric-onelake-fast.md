@@ -6,7 +6,7 @@ However, it is essential to note that the SQL analytics endpoint depends on back
 
 Reference: https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance <br>
 
-Reference:  <a href="[https://example.com](https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance )" target="_blank">sql-analytics-endpoint-performance </a>
+Reference:  <a href="[https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance](https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance )" target="_blank">sql-analytics-endpoint-performance </a>
 
 
 In response to the growing demand for HTAP systems—hybrid systems combining OLTP and OLAP functionalities—this document offers an alternative to the Lakehouse SQL analytics endpoint for scenarios requiring near real-time data querying within the OneLake Lakehouse.
