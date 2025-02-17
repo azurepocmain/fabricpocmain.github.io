@@ -1,12 +1,11 @@
 # Querying Fabric OneLake Fast
+<link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 Microsoft Fabric OneLake's Lakehouse SQL analytics endpoint offers a unified location for disparate systems to store and query integrated data directly within OneLake. This solution addresses a critical need for nearly every organization, particularly in reporting and processes that require correlation of data from various systems. SQL, as the universal language, along with the SQL analytics endpoint or a Spark engine, empowers organizations to democratize complex ETL processes.
 
 However, it is essential to note that the SQL analytics endpoint depends on background processes to synchronize the metadata of delta parquet files. For big data processes that do not use the endpoint and read directly from OneLake, this synchronization is not an issue. Conversely, for systems that rely on the Lakehouse SQL analytics endpoint and necessitate near real-time responses (e.g., 5-15 seconds), this can present a unique challenge.
 
-Reference: https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance <br>
-
-Reference:  <a href="https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance" target="_blank">sql-analytics-endpoint-performance </a>
+Reference:  <a href="https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance" target="_blank">SQL Analytics Endpoint Performance </a>
 
 
 In response to the growing demand for HTAP systems—hybrid systems combining OLTP and OLAP functionalities—this document offers an alternative to the Lakehouse SQL analytics endpoint for scenarios requiring near real-time data querying within the OneLake Lakehouse.
@@ -44,4 +43,4 @@ Lastly it's crucial to understand the following limitations:
 -	Data purge does not apply to external tables; records are never deleted.
 -	Row-level security policies cannot be configured on external tables.<br>
 
-Reference: [External tables - Kusto | Microsoft Learn](https://learn.microsoft.com/en-us/kusto/query/schema-entities/external-tables?view=microsoft-fabric)
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/query/schema-entities/external-tables?view=microsoft-fabric" target="_blank">Fabric Eventhouse External Tables </a>
