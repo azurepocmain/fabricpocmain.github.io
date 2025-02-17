@@ -11,7 +11,7 @@ Reference:  <a href="https://learn.microsoft.com/en-us/fabric/data-warehouse/sql
 In response to the growing demand for HTAP systems—hybrid systems combining OLTP and OLAP functionalities—this document offers an alternative to the Lakehouse SQL analytics endpoint for scenarios requiring near real-time data querying within the OneLake Lakehouse.
 _______________________________________________________________________________________
 
-Solution: Fabric Eventhouse
+**Solution: Fabric Eventhouse**
 
 Fabric Eventhouse offers a unique solution with the capability to query large data volumes in near real time. This is achieved by bypassing the SQL analytics endpoint and directly querying the data from OneLake storage, similar to Spark.
 How is this accomplished, you may ask? Through the use of external tables. Below is a DDL example illustrating how to create an external table in Eventhouse to directly query data from the OneLake Lakehouse storage. This approach eliminates the dependency on the SQL analytics endpoint and the synchronization process.
