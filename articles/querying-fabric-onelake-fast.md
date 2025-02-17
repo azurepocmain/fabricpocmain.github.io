@@ -1,7 +1,7 @@
 # Querying Fabric OneLake Fast
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
-Microsoft Fabric OneLake's Lakehouse SQL analytics endpoint offers a unified location for disparate systems to store and query integrated data directly within OneLake. This solution addresses a critical need for nearly every organization, particularly in reporting and processes that require correlation of data from various systems. SQL, as the universal language, along with the SQL analytics endpoint or a Spark engine, empowers organizations to democratize their ETL processes.
+Microsoft Fabric OneLake's Lakehouse SQL analytics endpoint offers a unified location for disparate systems to store and query integrated data directly within OneLake. This solution addresses a critical need for nearly every organization, particularly in reporting and processes that require correlation of data from various systems. SQL, as the universal language, along with the SQL analytics endpoint or a Spark engine, empowers organizations to democratize their ETL processes when leveraging OneLake mirroring features.
 
 However, it is essential to note that the SQL analytics endpoint depends on background processes to synchronize the metadata of delta parquet files. For big data processes that do not use the endpoint and read directly from OneLake, this synchronization is not an issue. Conversely, for systems that rely on the Lakehouse SQL analytics endpoint and necessitate near real-time responses (e.g., 5-15 seconds), this can present a unique challenge.
 
