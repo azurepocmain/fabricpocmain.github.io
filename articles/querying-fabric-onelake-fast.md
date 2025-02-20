@@ -159,11 +159,6 @@ using dotenv.net;
 using Kusto.Data.Common;
 using Microsoft.Extensions.Configuration;
 
-
-
-
-
-
 class Program
 {
     static async Task Main()
@@ -225,6 +220,8 @@ class Program
  
 </pre>    
 
+Further review of additional request properties can be verified at the following link:
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-properties?view=microsoft-fabric" target="_blank">Fabric Eventhouse Request Properties </a>
 
 
 
