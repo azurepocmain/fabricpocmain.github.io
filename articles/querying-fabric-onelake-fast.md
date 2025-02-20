@@ -34,6 +34,7 @@ External Table creation DDL:
 )
 kind=delta
 ('abfss://vicfabricpoc@onelake.dfs.fabric.microsoft.com/FabricLakeHouse.Lakehouse/Tables/SalesLT/Address;impersonate')
+    
 </pre>
 
 Key points to note:
@@ -67,6 +68,69 @@ Reference:  <a href="https:/learn.microsoft.com/en-us/kusto/concepts/query-limit
 The following example demonstrates how to invoke an Eventhouse KQL query to retrieve the necessary dataset. The referenced libraries were sourced from the NuGet repository.
 ![image](https://github.com/user-attachments/assets/d0bd7963-b445-4cd9-a31f-2e1b8699bc71)
 
+Observe that the "set notruncation;" parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
+
+<pre>
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Kusto.Data;
+using Kusto.Data.Net.Client;
+using Azure.Identity;
+using Kusto.Data.Common;
+using Microsoft.Extensions.Configuration;
+
+class Program
+{
+    static async Task Main()
+    {
+        //Load settings from appsettings.json I stored it in the bin\Debug\net8.0 locatoin of the C# project
+        var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
+        // Retrieve authentication details from appsettings.json
+        string tenantId = config["AzureSettings:TenantId"] ?? throw new ArgumentNullException("AzureSettings:TenantId is missing in appsettings.json");
+        string clientId = config["AzureSettings:ClientId"] ?? throw new ArgumentNullException("AzureSettings:ClientId is missing in appsettings.json");
+        string clientSecret = config["AzureSettings:ClientSecret"] ?? throw new ArgumentNullException("AzureSettings:ClientSecret is missing in appsettings.json");
+        string eventhouseCluster = config["AzureSettings:EventhouseCluster"] ?? throw new ArgumentNullException("AzureSettings:EventhouseCluster is missing in appsettings.json");
+        string database = config["AzureSettings:Database"] ?? throw new ArgumentNullException("AzureSettings:Database is missing in appsettings.json");
+
+
+        ///Build Kusto connection string with Azure AD application key authentication
+        var kcsb = new KustoConnectionStringBuilder(eventhouseCluster)
+            .WithAadApplicationKeyAuthentication(clientId, clientSecret, tenantId);
+
+        //Initialize Kusto client
+        using var client = KustoClientFactory.CreateCslQueryProvider(kcsb);
+
+        // KQL query (I added the notruncation to ensure results are returned that are a larger payload. you can add others)
+        string query = "set notruncation; external_table('Address')";
+
+        try
+        {
+            // Execute the query
+            var reader = await client.ExecuteQueryAsync(database, query, new ClientRequestProperties());
+
+            // Display the results
+            while (reader.Read())
+            {
+                var values = new List<string>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    values.Add(reader[i]?.ToString() ?? "NULL");
+                }
+                Console.WriteLine(string.Join(" | ", values));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error executing query: {ex.Message}");
+        }
+    }
+}
+                    
+</pre>  
 
 The above results are as follows: <br>
 ![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
@@ -82,14 +146,6 @@ As you can see below, I am able to sustain 10 concurrent sessions with a relativ
 Eventhouse also has the ability to track the exceptions as well. 
 ![image](https://github.com/user-attachments/assets/581e94cf-9fd8-48f0-9ca0-2dbeb0718035) 
 <br>
-
-
-
-Further review of additional request properties can be verified at the following link:
-Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-properties?view=microsoft-fabric" target="_blank">Fabric Eventhouse Request Properties </a>
-
-
-Observe that the "set notruncation;" below parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
 
 The C# code utilized to evaluate the concurrency thresholds is delineated below:
 
@@ -165,66 +221,14 @@ class Program
         Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
     }
 }
+    
 </pre>
-<pre>
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Kusto.Data;
-using Kusto.Data.Net.Client;
-using Azure.Identity;
-using Kusto.Data.Common;
-using Microsoft.Extensions.Configuration;
 
-class Program
-{
-    static async Task Main()
-    {
-        //Load settings from appsettings.json I stored it in the bin\Debug\net8.0 locatoin of the C# project
-        var config = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
-        .Build();
-        // Retrieve authentication details from appsettings.json
-        string tenantId = config["AzureSettings:TenantId"] ?? throw new ArgumentNullException("AzureSettings:TenantId is missing in appsettings.json");
-        string clientId = config["AzureSettings:ClientId"] ?? throw new ArgumentNullException("AzureSettings:ClientId is missing in appsettings.json");
-        string clientSecret = config["AzureSettings:ClientSecret"] ?? throw new ArgumentNullException("AzureSettings:ClientSecret is missing in appsettings.json");
-        string eventhouseCluster = config["AzureSettings:EventhouseCluster"] ?? throw new ArgumentNullException("AzureSettings:EventhouseCluster is missing in appsettings.json");
-        string database = config["AzureSettings:Database"] ?? throw new ArgumentNullException("AzureSettings:Database is missing in appsettings.json");
+Further review of additional request properties can be verified at the following link:
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-properties?view=microsoft-fabric" target="_blank">Fabric Eventhouse Request Properties </a>
 
 
-        ///Build Kusto connection string with Azure AD application key authentication
-        var kcsb = new KustoConnectionStringBuilder(eventhouseCluster)
-            .WithAadApplicationKeyAuthentication(clientId, clientSecret, tenantId);
 
-        //Initialize Kusto client
-        using var client = KustoClientFactory.CreateCslQueryProvider(kcsb);
 
-        // KQL query (I added the notruncation to ensure results are returned that are a larger payload. you can add others)
-        string query = "set notruncation; external_table('Address')";
-
-        try
-        {
-            // Execute the query
-            var reader = await client.ExecuteQueryAsync(database, query, new ClientRequestProperties());
-
-            // Display the results
-            while (reader.Read())
-            {
-                var values = new List<string>();
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    values.Add(reader[i]?.ToString() ?? "NULL");
-                }
-                Console.WriteLine(string.Join(" | ", values));
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error executing query: {ex.Message}");
-        }
-    }
-}</pre>
-<br>
 
 DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.
