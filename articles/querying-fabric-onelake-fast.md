@@ -138,7 +138,90 @@ This test evaluates the concurrency dynamics of the Eventhouse instance relative
 For this particular demonstration, the lowest capacity F2 is employed. It is recommended to conduct tests with a higher capacity for more robust results that are realistic to your business needs. 
 ![image](https://github.com/user-attachments/assets/876ee308-c82c-4060-9ef8-2aa02ec76850)
 
-
 As you can see below, I am able to sustain 10 concurrent sessions with a relatively large payload of over 500,000 records before I get the 429 too many request exception.
 
+Eventhouse also has the ability to track the exceptions as well. 
+![image](https://github.com/user-attachments/assets/581e94cf-9fd8-48f0-9ca0-2dbeb0718035)
+
+The C# code utilized to evaluate the concurrency thresholds is delineated below:
+<pre>    
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Kusto.Data;
+using Kusto.Data.Net.Client;
+using Azure.Identity;
+using dotenv.net;
+using Kusto.Data.Common;
+using Microsoft.Extensions.Configuration;
+
+
+
+
+
+
+class Program
+{
+    static async Task Main()
+    {
+        // Load settings from appsettings.json I stored i in the bin\Debug\net8.0 locatoin of the C# project
+        var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        // Retrieve authentication details from appsettings.json
+        string tenantId = config["AzureSettings:TenantId"] ?? throw new ArgumentNullException("AzureSettings:TenantId is missing in appsettings.json");
+        string clientId = config["AzureSettings:ClientId"] ?? throw new ArgumentNullException("AzureSettings:ClientId is missing in appsettings.json");
+        string clientSecret = config["AzureSettings:ClientSecret"] ?? throw new ArgumentNullException("AzureSettings:ClientSecret is missing in appsettings.json");
+        string eventhouseCluster = config["AzureSettings:EventhouseCluster"] ?? throw new ArgumentNullException("AzureSettings:EventhouseCluster is missing in appsettings.json");
+        string database = config["AzureSettings:Database"] ?? throw new ArgumentNullException("AzureSettings:Database is missing in appsettings.json");
+
+        // Build Kusto connection string
+        var kcsb = new KustoConnectionStringBuilder(eventhouseCluster)
+            .WithAadApplicationKeyAuthentication(clientId, clientSecret, tenantId);
+
+        // Number of concurrent sessions to test I am using a small instance 
+        int maxConcurrentSessions = 50; // We can adjust the amount of concurrent sessions 
+        int successCount = 0, failureCount = 0;
+
+        Console.WriteLine($"🔹 Running {maxConcurrentSessions} concurrent queries...");
+
+        // Run queries in parallel to test concurrency 
+        await Parallel.ForEachAsync(
+            Enumerable.Range(1, maxConcurrentSessions),
+            new ParallelOptions { MaxDegreeOfParallelism = maxConcurrentSessions }, 
+            async (i, cancellationToken) =>
+            {
+                try
+                {
+                    using var client = KustoClientFactory.CreateCslQueryProvider(kcsb);
+                    string query = "set notruncation; external_table('Address')";
+
+                    var reader = await client.ExecuteQueryAsync(database, query, new ClientRequestProperties());
+
+                    //Display one response row to confirm execution
+                    if (reader.Read())
+                    {
+                        Console.WriteLine($" Query {i} executed successfully.");
+                        Interlocked.Increment(ref successCount);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Query {i} failed: {ex.Message}");
+                    Interlocked.Increment(ref failureCount);
+                }
+            });
+
+        //Display final test results
+        Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
+    }
+}
+
+    
+</pre>    
 
