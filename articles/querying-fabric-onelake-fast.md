@@ -49,3 +49,87 @@ Lastly it's crucial to understand the following limitations:
 -	Row-level security policies cannot be configured on external tables.<br>
 
 Reference:  <a href="https://learn.microsoft.com/en-us/kusto/query/schema-entities/external-tables?view=microsoft-fabric" target="_blank">Fabric Eventhouse External Tables </a>
+
+**Performance: Fabric Eventhouse Performance Overview**
+
+While Fabric Eventhouse offers a robust solution for reading data in the OneLake, developers should be aware of its performance limits to ensure that the concurrency aligns with their business requirements.
+
+One of the critical performance aspects to consider is the result set size of queried data. By default, Kusto restricts the number of records returned to the client to 500,000, with an overall data size limit of 64 MB for those records. This limitation can be circumvented by utilizing the “set notruncation;” parameter before executing the query, as demonstrated in the C# code below.
+
+Concurrency is another vital metric for developers. In Eventhouse, concurrency is contingent on the SKU of the database, calculated as: Cores-Per-Node multiplied by 10. Therefore, the formula is: number_of_cores (x) 10 = concurrency total. The default and maximum request rate limit is set to 10,000.
+
+Additionally, the execution timeout value defaults to 4 minutes, which can be extended up to 1 hour by employing parameters such as norequesttimeout set to false. For further information regarding Eventhouse query limits and additional details, please refer to the provided link.
+
+Reference:  <a href="https:/learn.microsoft.com/en-us/kusto/concepts/query-limits?view=microsoft-fabric" target="_blank">Fabric Eventhouse Query limits</a>
+
+**.NET SDK: Fabric Eventhouse C# Examples**
+
+The following example demonstrates how to invoke an Eventhouse KQL query to retrieve the necessary dataset. The referenced libraries were sourced from the NuGet repository.
+![image](https://github.com/user-attachments/assets/d0bd7963-b445-4cd9-a31f-2e1b8699bc71)
+
+Observe that the "set notruncation;" parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.
+
+<pre>
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Kusto.Data;
+using Kusto.Data.Net.Client;
+using Azure.Identity;
+using Kusto.Data.Common;
+using Microsoft.Extensions.Configuration;
+
+class Program
+{
+    static async Task Main()
+    {
+        //Load settings from appsettings.json I stored i in the bin\Debug\net8.0 locatoin of the C# project
+        var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
+        // Retrieve authentication details from appsettings.json
+        string tenantId = config["AzureSettings:TenantId"] ?? throw new ArgumentNullException("AzureSettings:TenantId is missing in appsettings.json");
+        string clientId = config["AzureSettings:ClientId"] ?? throw new ArgumentNullException("AzureSettings:ClientId is missing in appsettings.json");
+        string clientSecret = config["AzureSettings:ClientSecret"] ?? throw new ArgumentNullException("AzureSettings:ClientSecret is missing in appsettings.json");
+        string eventhouseCluster = config["AzureSettings:EventhouseCluster"] ?? throw new ArgumentNullException("AzureSettings:EventhouseCluster is missing in appsettings.json");
+        string database = config["AzureSettings:Database"] ?? throw new ArgumentNullException("AzureSettings:Database is missing in appsettings.json");
+
+
+        ///Build Kusto connection string with Azure AD application key authentication
+        var kcsb = new KustoConnectionStringBuilder(eventhouseCluster)
+            .WithAadApplicationKeyAuthentication(clientId, clientSecret, tenantId);
+
+        //Initialize Kusto client
+        using var client = KustoClientFactory.CreateCslQueryProvider(kcsb);
+
+        // KQL query (I added the notruncation to ensure results are returned that are a larger payload. you can add others)
+        string query = "set notruncation; external_table('Address')";
+
+        try
+        {
+            // Execute the query
+            var reader = await client.ExecuteQueryAsync(database, query, new ClientRequestProperties());
+
+            // Display the results
+            while (reader.Read())
+            {
+                var values = new List<string>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    values.Add(reader[i]?.ToString() ?? "NULL");
+                }
+                Console.WriteLine(string.Join(" | ", values));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error executing query: {ex.Message}");
+        }
+    }
+}
+</pre>    
+
+The above results are as follows: 
+![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
+
