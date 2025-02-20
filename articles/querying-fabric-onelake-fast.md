@@ -129,7 +129,7 @@ class Program
         }
     }
 }
-                    
+
 </pre>  
 
 The above results are as follows: <br>
@@ -221,7 +221,7 @@ class Program
         Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
     }
 }
-    
+
 </pre>
 
 Further review of additional request properties can be verified at the following link:
