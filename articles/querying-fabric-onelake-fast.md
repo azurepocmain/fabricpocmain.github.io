@@ -91,7 +91,7 @@ Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-pr
 
 Observe that the "set notruncation;" below parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
 
-<pre>   
+``` 
 using System;
 using System.IO;
 using System.Linq;
@@ -163,13 +163,13 @@ class Program
         Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
     }
 }
-</pre>
+```
 
 
 The C# code utilized to evaluate the concurrency thresholds is delineated below:
 
 
-<pre>
+```
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -228,7 +228,7 @@ class Program
         }
     }
 }
-</pre>
+```
 
 
-
+***DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.***
