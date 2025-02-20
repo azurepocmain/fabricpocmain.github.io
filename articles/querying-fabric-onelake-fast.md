@@ -67,8 +67,6 @@ Reference:  <a href="https:/learn.microsoft.com/en-us/kusto/concepts/query-limit
 The following example demonstrates how to invoke an Eventhouse KQL query to retrieve the necessary dataset. The referenced libraries were sourced from the NuGet repository.
 ![image](https://github.com/user-attachments/assets/d0bd7963-b445-4cd9-a31f-2e1b8699bc71)
 
-Observe that the "set notruncation;" parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
-
 
 The above results are as follows: <br>
 ![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
@@ -91,6 +89,7 @@ Further review of additional request properties can be verified at the following
 Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-properties?view=microsoft-fabric" target="_blank">Fabric Eventhouse Request Properties </a>
 
 
+Observe that the "set notruncation;" below parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
 
 The C# code utilized to evaluate the concurrency thresholds is delineated below:
 
@@ -225,7 +224,7 @@ class Program
             Console.WriteLine($"Error executing query: {ex.Message}");
         }
     }
-}
-</pre>  
+}</pre>
+<br>
 
 DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.
