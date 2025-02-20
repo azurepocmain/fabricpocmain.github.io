@@ -67,7 +67,7 @@ Reference:  <a href="https:/learn.microsoft.com/en-us/kusto/concepts/query-limit
 The following example demonstrates how to invoke an Eventhouse KQL query to retrieve the necessary dataset. The referenced libraries were sourced from the NuGet repository.
 ![image](https://github.com/user-attachments/assets/d0bd7963-b445-4cd9-a31f-2e1b8699bc71)
 
-Observe that the "set notruncation;" parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.
+Observe that the "set notruncation;" parameter is prefixed before the actual query. This enables the handling of large data volumes exceeding 500,000 records or 64MB without triggering an exception.<br>
 
 <pre>
 using System;
@@ -130,7 +130,7 @@ class Program
 }
 </pre>    
 
-The above results are as follows: 
+The above results are as follows: <br>
 ![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
 
 **Performance: Fabric Eventhouse Concurrency Test**
@@ -142,7 +142,8 @@ As you can see below, I am able to sustain 10 concurrent sessions with a relativ
 ![image](https://github.com/user-attachments/assets/876ee308-c82c-4060-9ef8-2aa02ec76850)
 
 Eventhouse also has the ability to track the exceptions as well. 
-![image](https://github.com/user-attachments/assets/581e94cf-9fd8-48f0-9ca0-2dbeb0718035)
+![image](https://github.com/user-attachments/assets/581e94cf-9fd8-48f0-9ca0-2dbeb0718035) 
+<br>
 
 The C# code utilized to evaluate the concurrency thresholds is delineated below:
 <pre>    
