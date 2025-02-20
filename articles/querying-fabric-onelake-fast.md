@@ -136,9 +136,10 @@ The above results are as follows:
 **Performance: Fabric Eventhouse Concurrency Test**
 This test evaluates the concurrency dynamics of the Eventhouse instance relative to the allocated capacity units.
 For this particular demonstration, the lowest capacity F2 is employed. It is recommended to conduct tests with a higher capacity for more robust results that are realistic to your business needs. 
-![image](https://github.com/user-attachments/assets/876ee308-c82c-4060-9ef8-2aa02ec76850)
 
 As you can see below, I am able to sustain 10 concurrent sessions with a relatively large payload of over 500,000 records before I get the 429 too many request exception.
+
+![image](https://github.com/user-attachments/assets/876ee308-c82c-4060-9ef8-2aa02ec76850)
 
 Eventhouse also has the ability to track the exceptions as well. 
 ![image](https://github.com/user-attachments/assets/581e94cf-9fd8-48f0-9ca0-2dbeb0718035)
@@ -188,7 +189,7 @@ class Program
         int maxConcurrentSessions = 50; // We can adjust the amount of concurrent sessions 
         int successCount = 0, failureCount = 0;
 
-        Console.WriteLine($"🔹 Running {maxConcurrentSessions} concurrent queries...");
+        Console.WriteLine($"Running {maxConcurrentSessions} concurrent queries...");
 
         // Run queries in parallel to test concurrency 
         await Parallel.ForEachAsync(
@@ -221,7 +222,12 @@ class Program
         Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
     }
 }
-
-    
+ 
 </pre>    
 
+
+
+
+
+
+DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.
