@@ -128,7 +128,7 @@ class Program
         }
     }
 }
-</pre>    
+</pre>  
 
 The above results are as follows: <br>
 ![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
@@ -146,7 +146,8 @@ Eventhouse also has the ability to track the exceptions as well.
 <br>
 
 The C# code utilized to evaluate the concurrency thresholds is delineated below:
-<pre>    
+
+<pre>   
 using System;
 using System.IO;
 using System.Linq;
@@ -218,7 +219,7 @@ class Program
         Console.WriteLine($" Test Completed: {successCount} Successes, {failureCount} Failures.");
     }
 }
-</pre>    
+</pre>
 
 Further review of additional request properties can be verified at the following link:
 Reference:  <a href="https://learn.microsoft.com/en-us/kusto/api/rest/request-properties?view=microsoft-fabric" target="_blank">Fabric Eventhouse Request Properties </a>
