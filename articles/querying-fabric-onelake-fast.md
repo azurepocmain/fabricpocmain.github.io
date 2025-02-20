@@ -133,3 +133,12 @@ class Program
 The above results are as follows: 
 ![image](https://github.com/user-attachments/assets/865f5bba-554a-45ef-bedb-0658804a8468)
 
+**Performance: Fabric Eventhouse Concurrency Test**
+This test evaluates the concurrency dynamics of the Eventhouse instance relative to the allocated capacity units.
+For this particular demonstration, the lowest capacity F2 is employed. It is recommended to conduct tests with a higher capacity for more robust results that are realistic to your business needs. 
+![image](https://github.com/user-attachments/assets/876ee308-c82c-4060-9ef8-2aa02ec76850)
+
+
+As you can see below, I am able to sustain 10 concurrent sessions with a relatively large payload of over 500,000 records before I get the 429 too many request exception.
+
+
