@@ -83,7 +83,7 @@ class Program
 {
     static async Task Main()
     {
-        //Load settings from appsettings.json I stored it in the bin\Debug\net8.0 locatoin of the C# project
+        //Load settings from appsettings.json I stored it in the bin\Debug\net8.0 location of the C# project
         var config = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
@@ -165,7 +165,7 @@ class Program
 {
     static async Task Main()
     {
-        // Load settings from appsettings.json I stored i in the bin\Debug\net8.0 locatoin of the C# project
+        // Load settings from appsettings.json I stored it in the bin\Debug\net8.0 locatoin of the C# project
         var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
