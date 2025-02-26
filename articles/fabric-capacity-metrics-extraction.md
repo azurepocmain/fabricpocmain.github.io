@@ -33,7 +33,7 @@ df_workspace_warehouse_ids= fabric.read_table("Fabric Capacity Metrics", "Items"
 display(df_workspace_warehouse_ids)
 ```
 
-Define and assign the following variables utilizing the retrieved IDs in your Spark session:
+Define and assign the following variables utilizing the retrieved IDs from the above in your Spark session:
 ```
 FabricWorkspaceId="Add-Fabric-Workspace-ID-HERE"
 FabricWarehouseID="Add-Fabric-Warehouse-ID-HERE"
