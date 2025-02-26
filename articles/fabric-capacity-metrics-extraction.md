@@ -3,7 +3,7 @@
 
 As organizations deploy Fabric workspace capacity to multiple departments, it becomes imperative to implement precise tracking mechanisms for accurate inter-departmental billing. 
 The optimal tool for this purpose is Fabric Chargeback: <a href="https://learn.microsoft.com/en-gb/fabric/release-plan/admin-governance#capacity-metrics-chargeback-public-preview" target="_blank">Fabric Chargeback</a>
-However, since Fabric Chargeback is currently in public preview, this documentation will outline alternative methodologies utilizing Fabric Capacity Metrics for data extraction and storage to facilitate precise chargeback calculations.
+However, since Fabric Chargeback is currently in public preview, this documentation will outline alternative methodologies utilizing Fabric Capacity Metrics for data extraction and storage to facilitate chargeback calculations.
 
 **Steps: Fabric Capacity Metrics Extraction**
 
