@@ -151,7 +151,7 @@ JOIN
     DailyTotal d
 ON 
     CAST(metics.[Date] AS DATE) = d.UsageDate
-	WHERE item.[Billable type] IN ('Billable', 'Both') --O nly getting the actual cost
+	WHERE item.[Billable type] IN ('Billable', 'Both') --Only getting the actual cost
 GROUP BY 
     metics.WorkspaceId, item.WorkspaceName, CAST(metics.[Date] AS DATE), d.TotalDailyCU
 ORDER BY 
