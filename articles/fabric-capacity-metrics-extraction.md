@@ -89,7 +89,7 @@ df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabricWorkspa
 df_new_metric_insert = df_metrics_by_item_spark.join(df_current_metric_table, comparison_columns, "left_anti")
 
 #Step 3: Append only new records to Fabric Warehouse for each invocation
-df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("Fabricwarehouse1.dbo.FabricCapacityMetrics")
+df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricCapacityMetrics")
 
 ```
 
@@ -107,14 +107,14 @@ from com.microsoft.spark.fabric.Constants import Constants
 comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
 #Step 1: Read existing data from the Fabric Warehouse
-df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabricWorkspaceId).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql("FabricwarehouseName.dbo.FabricItems")
+df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabricWorkspaceId).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql("FabricwarehouseName.dbo.FabricItems") # Update Name as needed
 
 
 #Step 2: Identify new records using left_anti on multiple columns above
 df_new_metric_insert = df_items_table_spark.join(df_current_metric_table, comparison_columns, "left_anti")
 
 #Step 3: Append only new records to Fabric Warehouse for each invocation
-df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("Fabricwarehouse1.dbo.FabricItems")
+df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricItems") # Update Name as needed
 ```
 
 **SQL Code Steps: Fabric Capacity Metrics Percentabe Query:**
