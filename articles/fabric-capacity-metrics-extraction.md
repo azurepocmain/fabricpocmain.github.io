@@ -39,7 +39,6 @@ FabricWorkspaceId="Add-Fabric-Workspace-ID-HERE"
 FabricWarehouseID="Add-Fabric-Warehouse-ID-HERE"
 ```
 
-Please note that some of the below steps will not be needed and w
 
 ```
 import sempy.fabric as fabric
