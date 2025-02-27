@@ -93,7 +93,7 @@ df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWo
 ```
 
 ```
-# Process Item Table 
+# Process Item Table Inserts
 from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
