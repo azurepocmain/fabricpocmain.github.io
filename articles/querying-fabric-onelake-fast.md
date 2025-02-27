@@ -60,7 +60,7 @@ Concurrency is another vital metric for developers. In Eventhouse, concurrency i
 
 Additionally, the execution timeout value defaults to 4 minutes, which can be extended up to 1 hour by employing parameters such as norequesttimeout set to false. For further information regarding Eventhouse query limits and additional details, please refer to the provided link.
 
-Reference:  <a href="https:/learn.microsoft.com/en-us/kusto/concepts/query-limits?view=microsoft-fabric" target="_blank">Fabric Eventhouse Query limits</a>
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/concepts/query-limits?view=microsoft-fabric" target="_blank">Fabric Eventhouse Query limits</a>
 
 **.NET SDK: Fabric Eventhouse C# Examples**
 
