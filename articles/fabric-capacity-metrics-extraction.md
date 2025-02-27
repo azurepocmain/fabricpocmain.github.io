@@ -160,7 +160,7 @@ ORDER BY
 ![image](https://github.com/user-attachments/assets/6b40ab34-33fd-4ff7-a867-097bce2d73a2)
 
 
-Lastly, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / WORKSPACE PERCENTAGE FOR DAY = DAY COST PER DEPARTMENT ***
+Lastly, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / WORKSPACE PERCENTAGE FOR DAY = DAY COST PER DEPARTMENT***
 
 ***DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.***
 
