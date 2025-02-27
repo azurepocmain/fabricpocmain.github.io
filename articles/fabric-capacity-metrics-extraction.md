@@ -22,7 +22,7 @@ Finally, ensure that a Fabric Workspace has been established, as it will serve a
 *Step4:*
 Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
 
-**Spark Code Steps: Fabric Capacity Metrics Extraction:**
+**PySpark Code Steps: Fabric Capacity Metrics Extraction:**
 
 To obtain the FabricWarehouseID and FabricWarehouseID execute the following command utilizing PySpark within the Spark notebook. Ensure you have identified the WorkspaceID and the FabricWarehouse ItemID relevant to your operations.
 ```
