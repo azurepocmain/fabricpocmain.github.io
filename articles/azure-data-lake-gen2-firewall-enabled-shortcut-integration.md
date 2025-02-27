@@ -25,6 +25,7 @@ Once saved and deployed, the ADLS Gen 2 under “Security + networking” will h
 
 Verify that the workspace identity is registered for the Fabric workspace. 
 Provide the Fabric workspace storage blog data contributor on the ADLS Gen 2 account as well. 
+
 ![image](https://github.com/user-attachments/assets/4439faee-9d8d-4dbc-901f-d50e1cab8145)
 
 In the Entra AD, locate the App registrations and select the Fabric workspace ID. 
