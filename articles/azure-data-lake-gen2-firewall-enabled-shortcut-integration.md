@@ -24,15 +24,21 @@ Once saved and deployed, the ADLS Gen 2 under “Security + networking” will h
 ![image](https://github.com/user-attachments/assets/e1ef7609-4fa5-45b2-ba86-904312cd876d)
 
 Verify that the workspace identity is registered for the Fabric workspace. 
-Provide the Fabric workspace storage blog data contributor on the ADLS Gen 2 account as well. 
 
 ![image](https://github.com/user-attachments/assets/4439faee-9d8d-4dbc-901f-d50e1cab8145)
 
-In the Entra AD, locate the App registrations and select the Fabric workspace ID. 
-Proceed to create a client secret: 
-![image](https://github.com/user-attachments/assets/275fa9ef-09ee-4a06-a390-e229e2b61e95)
+Provide the Fabric workspace storage blob data contributor on the ADLS Gen 2 account as well. 
+Ensure that, for the Fabric workspace identities, the service principal option is selected when assigning the Storage Blob Data Contributor role, not managed identity.
+![image](https://github.com/user-attachments/assets/8262d649-a584-40dd-a179-0c679ee12047)
 
-Finally recreate the shortcut but this time select service principal since the storage account is secured by a firewall and use the Fabric credentials from the above. 
+
+
+Finally, configure the shortcut to utilize the managed identity, as the storage account is secured by a firewall. Ensure the Fabric workspace managed identity is applied in this context.
+![image](https://github.com/user-attachments/assets/2983e8e0-92b1-4e6c-a3b0-77a5d82f58b2)
+
+![image](https://github.com/user-attachments/assets/cc16e02a-fec5-4a29-91e6-c87149e86e9a)
+
+
 
 Reference:  <a href="https://learn.microsoft.com/en-us/fabric/security/security-trusted-workspace-access#arm-template-sample" target="_blank">Trusted workspace access</a>
 
