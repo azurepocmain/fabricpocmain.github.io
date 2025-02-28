@@ -33,7 +33,7 @@ Ensure that, for the Fabric workspace identity, the service principal option is 
 
 
 
-Finally, configure the shortcut to utilize the workspace identity, as the storage account is secured by a firewall. Ensure the Fabric workspace managed identity is applied in this context.
+Finally, configure the shortcut to utilize the workspace identity, as the storage account is secured by a firewall. Ensure the Fabric workspace identity is applied in this context.
 ![image](https://github.com/user-attachments/assets/2983e8e0-92b1-4e6c-a3b0-77a5d82f58b2)
 
 ![image](https://github.com/user-attachments/assets/cc16e02a-fec5-4a29-91e6-c87149e86e9a)
