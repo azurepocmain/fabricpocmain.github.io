@@ -160,14 +160,14 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 # comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
 # #Step 1: Read existing data from the Fabric Warehouse
-# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems2") # Update Table Name as needed
+# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 
 
 # #Step 2: Identify new records using left_anti on multiple columns above
 # df_new_metric_insert = df_items_table_spark.join(df_current_metric_table, comparison_columns, "left_anti")
 
 # #Step 3: Append only new records to Fabric Warehouse for each invocation
-# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems2") # Update Table Name as needed
+# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 ```
 
 ℹ️ Make sure to schedule a job that runs the above Python notebook either daily or every 13 days. 
