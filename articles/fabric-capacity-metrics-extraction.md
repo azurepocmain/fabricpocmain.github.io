@@ -1,6 +1,7 @@
 # Fabric Capacity Metrics Extraction
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
+***Updated 3-12-2025***
 As organizations deploy Fabric workspace capacity to multiple departments, it becomes imperative to implement tracking mechanisms for accurate inter-departmental billing. 
 The optimal tool for this purpose is Fabric Chargeback: <a href="https://learn.microsoft.com/en-gb/fabric/release-plan/admin-governance#capacity-metrics-chargeback-public-preview" target="_blank">Fabric Chargeback</a>
 However, since Fabric Chargeback is currently in public preview, this documentation will outline alternative methodologies utilizing Fabric Capacity Metrics for data extraction and storage to facilitate chargeback calculations.
@@ -11,50 +12,88 @@ However, since Fabric Chargeback is currently in public preview, this documentat
 Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > Microsoft Fabric Capacity Metrics and selecting "Get it now". The corresponding link is accessible here:  <a href="learn.microsoft.com/en-us/fabric/enterprise/metrics-app-install?tabs=1st" target="_blank">Install the Microsoft Fabric capacity metrics app</a>
 
 *Step2:*
-Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to "Workspace settings" located on the top right, and then select "License info" followed by the edit option. 
-Choose "Fabric capacity" and allocate the necessary capacity. 
-The allocated capacity is essential for executing the notebook provided below against the semantic model for the Microsoft Fabric Capacity Metrics workspace.
-![image](https://github.com/user-attachments/assets/8ed9ba2a-e6a2-49e1-8e59-97e248c383e5)
+Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
+There is no longer a need to add capacity to the Capacity Metrics workspace, as we will leverage remote commands to query the dataset in that workspace.
 
 *Step3:*
-Finally, ensure that a Fabric Workspace has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
+Finally, ensure that a Fabric Data Warehouse  has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
 
 *Step4:*
 Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
 
 **PySpark Code Steps: Fabric Capacity Metrics Extraction:**
 
-To obtain the FabricWarehouseID and FabricWarehouseID execute the following command utilizing PySpark within the Spark notebook. Ensure you have identified the WorkspaceID and the FabricWarehouse ItemID relevant to your operations.
+Getting the Fabric Capacity Workspace ID
+To obtain the Workspace ID for the Fabric Capacity Metrics workspace execute the following command utilizing PySpark within the Spark notebook. Ensure you have identified the Workspace ID of the remote Capacity Metrics App. We are using the workspace ID as there can be some errors if we solely use the workspace name as it can be altered etc.. 
 ```
 import sempy.fabric as fabric
 
-# Get FabricWarehouseID and FabricWarehouseID
-df_workspace_warehouse_ids= fabric.read_table("Fabric Capacity Metrics", "Items")
+# GET THE WORKSPACE ID THAT HAS THE FABRIC CAPACITY METRIC
+# First verify your Capacity workspace ID from the below. We should have the ability to access remote workspaces
+capacity_workspace_check=fabric.list_workspaces()
+
+display(capacity_workspace_check)
+```
+Getting the DataSet. 
+Using the above Workspace ID, add it to the below variable Fabric_Capacity_WorkspaceId replacing the value ADD_THE_ABOVE_FABRIC_CAPACITY_WORKSPACE_ID_HERE with your Fabric Capacity workspace ID from the above.
+In testing the Workspace ID did require a conversion with the UUID function but it is added in case. 
+No other variables should require altering unless the default dataset name has been altered.
+```
+import sempy.fabric as fabric
+
+# GET THE DATASET
+# Next, using the FabricWorkspaceId from the above, add it to the FabricWorkspaceId variable to get the fabric capacity dataset 
+# The UUID function should not be needed only there incase the workspace_id throws an exception ensure that you invoke the import as well
+#from uuid import UUID
+# Fabric_Capacity_WorkspaceId = UUID("work_space_id_here_if_the_below_fails_but_should_not_be_needed)  
+Fabric_Capacity_WorkspaceId="ADD_THE_ABOVE_FABRIC_CAPACITY_WORKSPACE_ID_HERE"
+# No need to change in most cases unless you updated prior
+DatasetName="Fabric Capacity Metrics"
+
+get_dataset=fabric.list_datasets(workspace=Fabric_Capacity_WorkspaceId)
+get_dataset = get_dataset.loc[get_dataset['Dataset Name'] == DatasetName]
+# Get the column value without the column name
+get_dataset = get_dataset['Dataset Name'].values[0]
+display(get_dataset)
+```
+
+We need to get the Fabric Data Warehouse Name,  ID and the Workspace ID where the Warehouse resides, as we will store the data in that table.
+The initial command assumes that you have already invoked the capacity metric app and report, and data has been collected.
+If not, the second command can be leveraged. It expects you to be in the workspace context of the Fabric Data Warehouse.
+```
+import sempy.fabric as fabric
+
+# Next get the Fabric Data Warehouse Name & ID from the ItemID column from the results below that you want to use. 
+# This assumes that you already have the Fabric capacity metrics running. 
+# If not then you can leverager the following:  get_fabric_dw_to_use=fabric.list_items(); display(get_fabric_dw_to_use)
+df_workspace_warehouse_ids= fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
 display(df_workspace_warehouse_ids)
 ```
 
-Define and assign the following variables utilizing the retrieved IDs from the above in your Spark session:
+Assign the three above variables to the three below variables.
 ```
-FabricWorkspaceId="Add-Fabric-Workspace-ID-HERE"
-FabricWarehouseID="Add-Fabric-Warehouse-ID-HERE"
+#Fabric DW ID Assign 
+# Assign the Fabric DW ID that will store the data
+FabircWarehouse_WorkSpace_ID="FABRIC_WORKSPACE_ID_WHERE_FABIRC_DW_LIVES"
+FabricWarehouseID="FABRIC_DW_RESOURCE_ID"
+FabricWarehouseName="FARBIC_WAREHOUSE_NAME"
 ```
 
-
+We are extracting the actual data from the dataset to store the values in the corresponding variables. 
 ```
 import sempy.fabric as fabric
 
 # Execute the export of data from the two semantic model objects. This operation should be scheduled either on a daily basis or at an interval of every 13 days.
 # This procedure will ensure that the 14-day data retention window is rigorously maintained.
 # Primary Table for CU Consumption
-df_metrics_by_item_day_table = fabric.read_table("Fabric Capacity Metrics", "MetricsByItemandDay")
+df_metrics_by_item_day_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="MetricsByItemandDay")
 
 # Primary Table for Worksapce Items
-df_items_table = fabric.read_table("Fabric Capacity Metrics", "Items")
-
+df_items_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
 ```
 
 
-
+We will convert the pandas DataFrame to a Spark DataFrame to ensure the data is properly inserted using Spark APIs for the Fabric Data Warehouse.
 ```
 from pyspark.sql import SparkSession
 
@@ -65,56 +104,74 @@ df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
 df_items_table_spark = spark.createDataFrame(df_items_table)
 ```
 
-
+Capacity Metrics Usage Inserts Section
+This section is very important, as the section without comments will only be executed the first time.
+Afterwards, the section below marked with ⬇️ should be executed for all subsequent runs.
+This approach ensures that there are no duplicate records and only new inserts are added to the table.
+Please adjust the table name if needed, but all other parameters should maintain their respective variables.
 ```
 # Process Capacity Metrics Inserts
 from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
+#⚠️ Warning:** THIS IS IMPORTANT.
+#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+df_metrics_by_item_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
 
-#INITIAL EXECUTION: Uncomment this section for the initial run and comment out all subsequent code blocks.
-# The table will be auto-created; adjust the table name as necessary, add your Fabric DW name in the FabricwarehouseName.
-#df_spark.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricCapacityMetrics")
+# #⚠️ Warning:** THIS IS IMPORTANT.
+# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
+# # Delta Section 
+# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+# comparison_columns = ["DateTime", "PremiumCapacityId", "ItemId", "sum_CU", "sum_duration", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
-#Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-comparison_columns = ["DateTime", "PremiumCapacityId", "ItemId", "sum_CU", "sum_duration", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
-
-#Step 1: Read existing data from the Fabric Warehouse
-df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabricWorkspaceId).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql("FabricwarehouseName.dbo.FabricCapacityMetrics")
+# #Step 1: Read existing data from the Fabric Warehouse
+# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
 
 
-#Step 2: Identify new records using left_anti on multiple columns above
-df_new_metric_insert = df_metrics_by_item_spark.join(df_current_metric_table, comparison_columns, "left_anti")
+# #Step 2: Identify new records using left_anti on multiple columns above
+# df_new_metric_insert = df_metrics_by_item_spark.join(df_current_metric_table, comparison_columns, "left_anti")
 
-#Step 3: Append only new records to Fabric Warehouse for each invocation
-df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricCapacityMetrics")
-
+# #Step 3: Append only new records to Fabric Warehouse for each invocation
+# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
 ```
 
+
+Process Item Table Inserts Section
+This section is very important, as the section without comments will only be executed the first time.
+Afterwards, the section below marked with ⬇️ should be executed for all subsequent runs.
+This approach ensures that there are no duplicate records and only new inserts are added to the table.
+Please adjust the table name if needed, but all other parameters should maintain their respective variables.
 ```
 # Process Item Table Inserts
 from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-#INITIAL EXECUTION: Uncomment this section for the initial run and comment out all subsequent code blocks.
-# The table will be auto-created; adjust the table name as necessary, add your Fabric DW name in the FabricwarehouseName.
-#df_spark.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricItems")
+#⚠️ Warning:** THIS IS IMPORTANT.
+#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems")
 
-#Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
+# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+# comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
-#Step 1: Read existing data from the Fabric Warehouse
-df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabricWorkspaceId).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql("FabricwarehouseName.dbo.FabricItems") # Update Name as needed
+# #Step 1: Read existing data from the Fabric Warehouse
+# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems2") # Update Table Name as needed
 
 
-#Step 2: Identify new records using left_anti on multiple columns above
-df_new_metric_insert = df_items_table_spark.join(df_current_metric_table, comparison_columns, "left_anti")
+# #Step 2: Identify new records using left_anti on multiple columns above
+# df_new_metric_insert = df_items_table_spark.join(df_current_metric_table, comparison_columns, "left_anti")
 
-#Step 3: Append only new records to Fabric Warehouse for each invocation
-df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabricWorkspaceId).synapsesql("FabricwarehouseName.dbo.FabricItems") # Update Name as needed
+# #Step 3: Append only new records to Fabric Warehouse for each invocation
+# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems2") # Update Table Name as needed
 ```
+
+ℹ️ Make sure to schedule a job that runs the above Python notebook either daily or every 13 days. 
+This is important because after 14 days, the older data will be purged, as the metrics have a 14-day retention period.
+
 
 **SQL Code Steps: Fabric Capacity Metrics Percentabe Query:**
 A percentage output for each day and related workspace will be the output. You can potentially utilize this percentage and divide it by the daily cost via the Azure Portal to implement the chargeback process.
