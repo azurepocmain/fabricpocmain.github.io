@@ -5,8 +5,8 @@ The Microsoft Fabric platform offers a comprehensive array of solutions for data
 This document aims to outline several potential methodologies tailored to specific use cases within this domain, though it may not encompass every possible option. 
 As leveraging integration of Spark within the Fabric ecosystem, this list can be potentially limitless. 
 
+_______________________________________________________________________________________
 **Potential Solutions:**
-
 ***Real-Time/Near Real-Time***
 
 No discussion of real-time to near real-time solutions would be complete without addressing Eventstreams within Microsoft Fabric. 
@@ -71,7 +71,7 @@ Cons:
 
 •	Table retention needs to be verified to ensure the data purge policy complies with business objectives.
 
-
+_______________________________________________________________________________________
 ***Near Real-Time***
 
 In Eventhouse, KQL provides the capability to orchestrate data transformation processes after data has been ingested into the OneLake LakeHouse. 
@@ -108,11 +108,27 @@ Reference:  <a href="https://learn.microsoft.com/en-us/fabric/data-warehouse/sql
 .append TransformAddressDataTab <| TransformAddressData() 
 ```
 
-Even SQL can be leveraged to perform data transformations and validatoin in Eventhouse. 
+Additionally, SQL can be employed to execute data transformations and validations within Eventhouse, ensuring precise manipulation and verification of datasets.
+```
+SELECT 
+    a1.AddressID AS AddressID1,
+    CONCAT(a1.AddressLine1, ' ', a1.AddressLine2) AS FullAddress1,
+    LEN(CONCAT(a1.AddressLine1, ' ', a1.AddressLine2)) AS AddressLength1,
+    a2.AddressID AS AddressID2,
+    CONCAT(a2.AddressLine1, ' ', a2.AddressLine2) AS FullAddress2,
+    LEN(CONCAT(a2.AddressLine1, ' ', a2.AddressLine2)) AS AddressLength2
+FROM 
+    Address a1
+INNER JOIN 
+    Workers a2
+ON 
+    a1.City = a2.City AND a1.PostalCode = a2.PostalCode;
+```
+
+Additionally, if the SQL statement is prefixed with the keyword 'EXPLAIN', the output will include the KQL equivalent, providing a detailed insight into the query KQL version:
+![image](https://github.com/user-attachments/assets/7fdbc291-fef8-4fbf-b5e2-ea2442b694ec)
 
 
-
-Reference:  <a href="https://learn.microsoft.com/en-us/kusto/query/tutorials/learn-common-operators?view=microsoft-fabric" target="_blank">SQL Analytics Endpoint Performance </a>
 
 
 
