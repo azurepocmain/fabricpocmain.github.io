@@ -51,5 +51,33 @@ parsedData
 ```
 ![image](https://github.com/user-attachments/assets/f1bca52b-aafe-43b2-905c-7c2274dd7adc)
 
+Additionally, when utilizing KQL internal tables, it is possible to implement update policies that automatically insert data into a table when the source table undergoes data insert.
+Our initial tests demonstrated that the update policy processing took approximately one minute during the first run. This suggests that, at present, this approach may not be ideal for solutions requiring near real-time updates.
+
+
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/management/update-policy?view=microsoft-fabric" target="_blank">KQL Eventhouse Update Policy Overview</a>
+
+Overall: 
+Pros:
+
+•	Minimal latency and inherent data validation during the streaming process.
+
+•	Additional transformation capabilities during data streaming.
+
+•	Low-code to no-code implementation.
+Cons:
+
+•	Data deletions and updates must be manually processed from the JSON object to ensure the dimension table or view aligns with business requirements.
+
+•	Table retention needs to be verified to ensure the data purge policy complies with business objectives.
+
+
+
+
+
+
+
+
+
 
 
