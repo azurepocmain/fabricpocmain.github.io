@@ -189,6 +189,28 @@ ________________________________________________________________________________
 The next solution is Apache Spark, which offers similar capabilities such as support for multiple languages, including SQL, as well as advanced transformation and validation functionalities.
 Due to its design for big data processing, Spark operates with a distributed architecture that involves multiple compute nodes, akin to Eventhouse.
 
-However, it p
+As demonstrated below, the same query utilized via Lakehouse can be invoked through the Spark SQL API. Note the elapsed time in comparison to Lakehouse—it is approximately five seconds longer to retrieve the data.
+In summary, Spark provides a robust array of options for advanced big data transformation and validation processes.
 
+![image](https://github.com/user-attachments/assets/9359aa12-3b8b-406d-a091-3e0b5502f315)
+
+Pros:
+
+• Optimized for high-volume data processing.
+
+• Supports multiple programming languages including SQL.
+
+• Capable of directly reading delta files from OneLake, thereby eliminating potential additional latency inherent in other metadata synchronization processes.
+
+Cons:
+
+• Cluster initialization period can be significant.
+
+• Requires utilization of the Spark DataFrame API for table write operations.
+
+• Concurrency assessments are essential to ascertain maximum workload capacity.
+
+
+_______________________________________________________________________________________
+***Batch Pipelines***
 
