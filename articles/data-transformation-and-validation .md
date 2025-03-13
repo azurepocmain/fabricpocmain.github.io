@@ -72,12 +72,47 @@ Cons:
 •	Table retention needs to be verified to ensure the data purge policy complies with business objectives.
 
 
+***Near Real-Time***
+
+In Eventhouse, KQL provides the capability to orchestrate data transformation processes after data has been ingested into the OneLake LakeHouse. 
+This section outlines various KQL syntax and functions compatible with external tables, enabling advanced data transformation and validation workflows.
+
+The following function can be created and invoked to execute various data transformations and validations:
+
+```
+.create-or-alter function TransformAddressData() {
+    external_table("Address")
+    | extend ConcatenatedAddress = strcat(AddressLine1, " ", PostalCode)
+    | extend NewAddressID = AddressID + 10
+    | project ConcatenatedAddress, NewAddressID, AddressLine1
+}
+```
+
+The function on the external table can be invoked by executing the following command:
+```
+TransformAddressData()
+```
+
+Furthermore, if a medallion architecture with an internal table is required, the transformed or validated data can be seamlessly loaded into the "Gold" zone from the the external table by via the below steps.
+
+Create the table in the Gold zone:
+```
+.create table TransformAddressDataTab (ConcatenatedAddress: string, NewAddressID: long, AddressLine1: string) with (folder="Gold")
+```
+
+Then subsequently invoking the function and appending the processed data into the newly established table in the Gold zone.
+There are numerous built-in functions available that can be utilized to execute various data transformations and validations, including joins that verify specific primary key and foreign key references.
+For additional reference please visit the link below: 
+Reference:  <a href="https://learn.microsoft.com/en-us/fabric/data-warehouse/sql-analytics-endpoint-performance" target="_blank">Kusto documentation</a>
+```
+.append TransformAddressDataTab <| TransformAddressData() 
+```
+
+Even SQL can be leveraged to perform data transformations and validatoin in Eventhouse. 
 
 
 
-
-
-
+Reference:  <a href="https://learn.microsoft.com/en-us/kusto/query/tutorials/learn-common-operators?view=microsoft-fabric" target="_blank">SQL Analytics Endpoint Performance </a>
 
 
 
