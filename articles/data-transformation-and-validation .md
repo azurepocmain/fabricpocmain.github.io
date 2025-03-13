@@ -58,6 +58,7 @@ Our initial tests demonstrated that the update policy processing took approximat
 Reference:  <a href="https://learn.microsoft.com/en-us/kusto/management/update-policy?view=microsoft-fabric" target="_blank">KQL Eventhouse Update Policy Overview</a>
 
 Overall: 
+
 Pros:
 
 •	Minimal latency and inherent data validation during the streaming process.
@@ -129,6 +130,7 @@ Additionally, if the SQL statement is prefixed with the keyword 'EXPLAIN', the o
 ![image](https://github.com/user-attachments/assets/7fdbc291-fef8-4fbf-b5e2-ea2442b694ec)
 
 Overall: 
+
 Pros:
 
 •	Enables near real-time KQL transformations and validations.
@@ -136,6 +138,8 @@ Pros:
 •	Functions can be applied to external tables and loaded into the Gold zone internal tables.
 
 •	Allows SQL query language to be utilized for data transformation and validation.
+
+•	Has the ability to directly read delta files from OneLake, enabling the mitigation of potential additional latency.
 Cons:
 
 •	Minimum resource consumption must be verified to ensure adequate resource allocation and concurrency.
@@ -158,6 +162,7 @@ The advantageous aspect here is that the identical query syntax and functions, a
 
 
 Overall: 
+
 Pros:
 
 •	Familiar SQL syntax functions and stored procedures.
@@ -172,11 +177,18 @@ Cons:
 
 •	Requirement for meticulous design to mitigate network bottlenecks in SQL analytics endpoint.
 
-•	Current lack of primary key and foreign key enforcement.
+•	Lack of primary key and foreign key enforcement.
+
+•	Currently lacks the ability to read delta parquet files directly from OneLake for the SQL analytics endpoint.
+
 
 
 _______________________________________________________________________________________
-***Near Real-Time/Batch Spark***
+***Batch Spark***
 
-The next solution is Spark, 
+The next solution is Apache Spark, which offers similar capabilities such as support for multiple languages, including SQL, as well as advanced transformation and validation functionalities.
+Due to its design for big data processing, Spark operates with a distributed architecture that involves multiple compute nodes, akin to Eventhouse.
+
+However, it p
+
 
