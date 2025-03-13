@@ -7,7 +7,7 @@ As leveraging integration of Spark within the Fabric ecosystem, this list can be
 
 _______________________________________________________________________________________
 **Potential Solutions:**
-***Real-Time/Near Real-Time***
+***Real-Time/Near Real-Time Eventstream***
 
 No discussion of real-time to near real-time solutions would be complete without addressing Eventstreams within Microsoft Fabric. 
 This option not only encompasses various data ingestion methods via streaming but also offers a robust framework for validation and transformation of Azure SQL stream data as well as other data repositories with low to no code options.
@@ -73,7 +73,7 @@ Cons:
 •	Table retention needs to be verified to ensure the data purge policy complies with business objectives.
 
 _______________________________________________________________________________________
-***Near Real-Time***
+***Near Real-Time Eventhouse***
 
 In Eventhouse, KQL provides the capability to orchestrate data transformation processes after data has been ingested into the OneLake LakeHouse. 
 This section outlines various KQL syntax and functions compatible with external tables, enabling advanced data transformation and validation workflows.
@@ -151,7 +151,7 @@ Cons:
 
 
 _______________________________________________________________________________________
-***Near Real-Time/Batch Warehouse***
+***Near Real-Time/Batch Lakehouse & Data Warehouse***
 
 The next solution will be observed once data is ingested into OneLake LakeHouse or Warehouse, utilizing the SQL analytics endpoint. It has been noted that data loaded via database mirroring exhibits randomized latency due to the metadata synchronization process that must be conducted.
 
