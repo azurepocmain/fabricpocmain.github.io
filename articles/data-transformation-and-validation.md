@@ -66,6 +66,7 @@ Pros:
 •	Additional transformation capabilities during data streaming.
 
 •	Low-code to no-code implementation.
+
 Cons:
 
 •	Data deletions and updates must be manually processed from the JSON object to ensure the dimension table or view aligns with business requirements.
@@ -140,6 +141,7 @@ Pros:
 •	Allows SQL query language to be utilized for data transformation and validation.
 
 •	Has the ability to directly read delta files from OneLake, enabling the mitigation of potential additional latency.
+
 Cons:
 
 •	Minimum resource consumption must be verified to ensure adequate resource allocation and concurrency.
