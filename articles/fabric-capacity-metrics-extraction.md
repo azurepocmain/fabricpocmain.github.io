@@ -14,10 +14,12 @@ Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > M
 
 *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
-There is no longer a need to add capacity to the Capacity Metrics workspace, as we will leverage remote commands to query the dataset in that workspace.
+Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Choose “Fabric capacity” and allocate the necessary capacity. The allocated capacity is essential for executing the notebook provided below against the semantic model for the Microsoft Fabric Capacity Metrics as you may get a permission exception  if not configured. 
+![image](https://github.com/user-attachments/assets/f4dcb180-f3fc-4955-b947-bba6cc50aa5d)
+
 
 *Step3:*
-Finally, ensure that a Fabric Data Warehouse  has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
+Finally, ensure that a Fabric Data Warehouse has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
 
 *Step4:*
 Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
