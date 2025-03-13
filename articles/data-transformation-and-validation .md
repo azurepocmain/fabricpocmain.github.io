@@ -147,7 +147,7 @@ Cons:
 
 
 _______________________________________________________________________________________
-***Near Real-Time/Batch***
+***Near Real-Time/Batch Warehouse***
 
 The next solution will be observed once data is ingested into OneLake LakeHouse or Warehouse, utilizing the SQL analytics endpoint. It has been noted that data loaded via database mirroring exhibits randomized latency due to the metadata synchronization process that must be conducted.
 
@@ -155,4 +155,28 @@ The next solution will be observed once data is ingested into OneLake LakeHouse 
 The advantageous aspect here is that the identical query syntax and functions, already familiar to us, can be employed for executing data transformation and validation tasks, as demonstrated in the subsequent sections. Notice how the query in Eventhouse KQL is similar to the Lakehouse and Data Warehouse.
 
 ![image](https://github.com/user-attachments/assets/d45022fe-e37c-4cf5-8b89-dc6e0fcf014d)
+
+
+Overall: 
+Pros:
+
+•	Familiar SQL syntax functions and stored procedures.
+
+•	Capability to perform data joins between data warehouses and Lakehouse.
+
+•	SQL endpoint compatibility with various applications.
+
+Cons:
+
+•	Potential latency issues with SQL analytics endpoint.
+
+•	Requirement for meticulous design to mitigate network bottlenecks in SQL analytics endpoint.
+
+•	Current lack of primary key and foreign key enforcement.
+
+
+_______________________________________________________________________________________
+***Near Real-Time/Batch Spark***
+
+The next solution is Spark, 
 
