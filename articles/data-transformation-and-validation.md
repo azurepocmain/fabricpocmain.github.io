@@ -16,7 +16,7 @@ This option not only encompasses various data ingestion methods via streaming bu
 Once the Azure SQL database source has been selected, the "Transform events" dropdown menu offers several transformation and validation options, including the "Filter" function, which facilitates advanced data processing workflows.
 ![image](https://github.com/user-attachments/assets/810d419f-4ecf-46dd-9d0c-8a9ac52e4fa1)
 
-Utilizing the "Table" key in this scenario, I can ensure that the streamed data undergoes specific table source prior to its complete storage. This enables the establishment of various conditional checks that can be executed before the final data set is committed to storage.
+Utilizing the "Table" key in this scenario, I can ensure that the streamed data derives from a specific table source prior to its final landing storage. This enables the establishment of various conditional checks that can be executed before the final data set is committed to storage.
 ![image](https://github.com/user-attachments/assets/1369a5c3-6b18-4951-88f1-ad362a3d20d6)
 ![image](https://github.com/user-attachments/assets/557be556-b3f1-4482-9df5-10f772a79a5e)
 
