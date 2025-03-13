@@ -128,7 +128,31 @@ ON
 Additionally, if the SQL statement is prefixed with the keyword 'EXPLAIN', the output will include the KQL equivalent, providing a detailed insight into the query KQL version:
 ![image](https://github.com/user-attachments/assets/7fdbc291-fef8-4fbf-b5e2-ea2442b694ec)
 
+Overall: 
+Pros:
+
+•	Enables near real-time KQL transformations and validations.
+
+•	Functions can be applied to external tables and loaded into the Gold zone internal tables.
+
+•	Allows SQL query language to be utilized for data transformation and validation.
+Cons:
+
+•	Minimum resource consumption must be verified to ensure adequate resource allocation and concurrency.
+
+•	Retention policies for internal tables need to be confirmed.
+
+•	Data limit parameters should be configured to remove query limitations.
 
 
 
+_______________________________________________________________________________________
+***Near Real-Time/Batch***
+
+The next solution will be observed once data is ingested into OneLake LakeHouse or Warehouse, utilizing the SQL analytics endpoint. It has been noted that data loaded via database mirroring exhibits randomized latency due to the metadata synchronization process that must be conducted.
+
+
+The advantageous aspect here is that the identical query syntax and functions, already familiar to us, can be employed for executing data transformation and validation tasks, as demonstrated in the subsequent sections. Notice how the query in Eventhouse KQL is similar to the Lakehouse and Data Warehouse.
+
+![image](https://github.com/user-attachments/assets/d45022fe-e37c-4cf5-8b89-dc6e0fcf014d)
 
