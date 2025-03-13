@@ -212,5 +212,9 @@ Cons:
 
 
 _______________________________________________________________________________________
-***Batch Pipelines***
+***Batch Prepare Data***
+
+In addition to the above points, Fabric offers advanced capabilities for data transformation and validation, with some features utilizing the same compute as mentioned earlier. These functionalities address specific use cases and requirements, providing comprehensive solutions for data management. For detailed documentation and further information, please refer to the official resources.
+
+![image](https://github.com/user-attachments/assets/de9ee63f-d874-40e6-ac7a-b40bc46eed14)
 
