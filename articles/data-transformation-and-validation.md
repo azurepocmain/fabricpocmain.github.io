@@ -71,7 +71,7 @@ Cons:
 
 •	Data deletions and updates must be manually processed from the JSON object to ensure the dimension table or view aligns with business requirements.
 
-•	Table retention needs to be verified to ensure the data purge policy complies with business objectives.
+•	Table retention needs to be verified to ensure the data purge policy complies with business objectives and does not have duplicate data.
 
 _______________________________________________________________________________________
 ***Near Real-Time Eventhouse***
