@@ -39,7 +39,7 @@ display(capacity_workspace_check)
 ```
 Getting the DataSet. 
 Using the above Workspace ID, add it to the below variable Fabric_Capacity_WorkspaceId replacing the value ADD_THE_ABOVE_FABRIC_CAPACITY_WORKSPACE_ID_HERE with your Fabric Capacity workspace ID from the above.
-In testing the Workspace ID did require a conversion with the UUID function but it is added in case. 
+In testing the Workspace ID did not require a conversion with the UUID function but it is added in case. 
 No other variables should require altering unless the default dataset name has been altered.
 ```
 import sempy.fabric as fabric
