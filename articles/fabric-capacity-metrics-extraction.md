@@ -66,11 +66,12 @@ If not, the second command can be leveraged. It expects you to be in the workspa
 ```
 import sempy.fabric as fabric
 
-# Next get the Fabric Data Warehouse Name & ID from the ItemID column from the results below that you want to use. 
-# This assumes that you already have the Fabric capacity metrics running. 
-# If not then you can leverager the following:  get_fabric_dw_to_use=fabric.list_items(); display(get_fabric_dw_to_use)
-df_workspace_warehouse_ids= fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
-display(df_workspace_warehouse_ids)
+# Next get the Fabric Data Warehouse Name & ID from the Id column from the results below that you want to use. 
+# Be sure to replace Add_Fabric_Workspace_Id_Where_Farbic_Data_Warehouse_Resides with the above workspace ID that has the Fabric DW.
+get_fabric_dw_to_use=fabric.list_items(workspace="Add_Fabric_Workspace_Id_Where_Farbic_Data_Warehouse_Resides");
+# Only return DW so semantic model name wont confuse anyone as they have the same name 
+get_fabric_dw_to_use=get_fabric_dw_to_use.loc[get_fabric_dw_to_use["Type"] == "Warehouse"]
+display(get_fabric_dw_to_use)
 ```
 
 Assign the three above variables to the three below variables.
