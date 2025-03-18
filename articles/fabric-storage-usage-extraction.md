@@ -224,7 +224,7 @@ ORDER BY
 
 
 ```
-![image](https://github.com/user-attachments/assets/6b40ab34-33fd-4ff7-a867-097bce2d73a2)
+![image](https://github.com/user-attachments/assets/eabb6b71-8d52-4a85-a916-a4c983f6130b)
 
 
 Lastly, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / WORKSPACE STORAGE FOR DAY = DAY COST PER DEPARTMENT***
