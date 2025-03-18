@@ -2,7 +2,7 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 
-In certain scenarios, it may be necessary to load a Lakehouse into a notebook to process datasets from a designated Lakehouse. The following configuration command provides the functionality to achieve this:
+In certain scenarios, it may be necessary to load a Lakehouse into a notebook programmatically to process datasets from a designated Lakehouse. The following configuration command provides the functionality to achieve this:
 
 ```
 %%configure
