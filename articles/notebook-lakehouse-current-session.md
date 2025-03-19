@@ -10,12 +10,13 @@ In certain scenarios, it may be necessary to load a Lakehouse into a notebook pr
     "defaultLakehouse": { 
         "name": "<Lake_House_Name_Here>",
         "id": "<Lake_House_ID_HERE",
-        "workspaceId": "<Workspace-ID-That-Contains-The-Lakehouse" 
+        "workspaceId": "<Workspace-ID-That-Contains-The-Lakehouse>" 
     }
 }
 ```
 
-![image](https://github.com/user-attachments/assets/1715e177-ce81-4a50-a1de-35f6540feda4)
+![image](https://github.com/user-attachments/assets/6ba178eb-2414-47cd-9ecf-94afddbd1434)
+
 
 
 Upon successful execution of the above command, the full qualifier can then be used to access resources within the specified Lakehouse.
