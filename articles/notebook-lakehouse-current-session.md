@@ -24,4 +24,6 @@ Upon successful execution of the above command, the full qualifier can then be u
 ![image](https://github.com/user-attachments/assets/4a0c75e0-2d66-4246-8591-b619f75f3762)
 
 
-Reference: https://learn.microsoft.com/en-us/fabric/data-engineering/author-execute-notebook
+Reference: <a href="https://learn.microsoft.com/en-us/fabric/data-engineering/author-execute-notebook" target="_blank">Author Execute Notebook</a>
+
+
