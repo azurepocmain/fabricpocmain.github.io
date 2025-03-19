@@ -9,13 +9,14 @@ In certain scenarios, it may be necessary to load a Lakehouse into a notebook pr
 {
     "defaultLakehouse": { 
         "name": "<Lake_House_Name_Here>",
-        "id": "<Lake_House_ID_HERE",
+        "id": "<Lake_House_ID_HERE>",
         "workspaceId": "<Workspace-ID-That-Contains-The-Lakehouse>" 
     }
 }
 ```
 
-![image](https://github.com/user-attachments/assets/6ba178eb-2414-47cd-9ecf-94afddbd1434)
+![image](https://github.com/user-attachments/assets/56c24318-b752-4614-a223-ef17facc7518)
+
 
 
 
