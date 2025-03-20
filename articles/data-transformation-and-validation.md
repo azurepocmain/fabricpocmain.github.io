@@ -213,6 +213,38 @@ Cons:
 • Concurrency assessments are essential to ascertain maximum workload capacity.
 
 
+
+_______________________________________________________________________________________
+***Batch Data Factory Data Pipelines/Dataflows***
+
+Another alternative is utilizing Data Flows, which provides a sophisticated graphical interface for performing a variety of transformations leveraging Power Query. These transformations can be executed as standalone Data Flows or within a data pipeline in a specific sequence.
+Similarly, Data Pipelines employ a graphical interface to orchestrate transformations, with computation engines executing the operations. These engines encompass those previously discussed. 
+A distinct feature of Data Pipelines is parameterization, allowing the passing of outputs from one activity to another. 
+This facilitates the use of a configuration table to inject specific parameters based on predefined conditions, thereby enhancing flexibility and customization in data processing workflows.
+
+![image](https://github.com/user-attachments/assets/349e265d-df4a-454c-9394-63871d5c7b5d)
+
+![image](https://github.com/user-attachments/assets/b5583503-329a-4731-996d-e6814ab2f79e)
+
+![image](https://github.com/user-attachments/assets/5bf8f1a7-7f51-4cf8-9f87-91721dc770a6)
+
+
+Pros:
+
+• Parameterization allows outputs from one activity to be utilized as inputs for another, enabling the addition of configurations into a configuration table without modifying the pipeline directly.
+
+• A diverse set of compute engines can be employed for transformation processes.
+
+• An intuitive graphical user interface facilitates low-code to no-code operations.
+
+
+Cons:
+
+• Job initialization and execution require a certain amount of time.
+
+• Consideration of pipeline resource limits is crucial during the design phase.
+
+
 _______________________________________________________________________________________
 ***Batch Prepare Data***
 
