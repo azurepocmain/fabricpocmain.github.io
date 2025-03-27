@@ -36,7 +36,7 @@ Ensure that, for the Fabric workspace identity, the service principal option is 
 Finally, configure the shortcut to utilize the workspace identity, as the storage account is secured by a firewall. Ensure the Fabric workspace identity is applied in this context.
 ![image](https://github.com/user-attachments/assets/2983e8e0-92b1-4e6c-a3b0-77a5d82f58b2)
 
-It is important to note that authentication methods, such as service principals, have inherent limitations and should not be utilized when creating shortcuts. This is explicitly stated in the official documentation: "Trusted workspace access is not supported if a service principal is used to create shortcut."
+It is important to note that authentication methods, such as service principals, have inherent limitations and should not be utilized when creating shortcuts. This is explicitly stated in the official documentation: ***"Trusted workspace access is not supported if a service principal is used to create shortcut."***
 Attempting to use an API call for this purpose via service principal will result in the following exception:
 ***"InsufficientPrivileges","moreDetails":[{"errorCode":"Forbidden","message":"Unable to access resource 'https://vicgoldstorage.blob.core.windows.net/' using connection 'https://vicgoldstorage.dfs.core.windows.net/ admin'. The supplied connection has insufficient permissions to access the resource. Please check the documentation for the required permissions."}],"message":"The caller does not have sufficient permissions to access the requested resource"}"***
 
