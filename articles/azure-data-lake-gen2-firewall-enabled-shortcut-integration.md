@@ -40,8 +40,12 @@ It is important to note that authentication methods, such as service principals,
 Attempting to use an API call for this purpose via service principal will result in the following exception:
 ***"InsufficientPrivileges","moreDetails":[{"errorCode":"Forbidden","message":"Unable to access resource 'https://vicgoldstorage.blob.core.windows.net/' using connection 'https://vicgoldstorage.dfs.core.windows.net/ admin'. The supplied connection has insufficient permissions to access the resource. Please check the documentation for the required permissions."}],"message":"The caller does not have sufficient permissions to access the requested resource"}"***
 
+For the full list of restrictions and considerations please visit the following link: 
+<a href="https://learn.microsoft.com/en-us/fabric/security/security-trusted-workspace-access#restrictions-and-considerations" target="_blank">Trusted workspace access restrictions-and-considerations</a>
+
 
 ![image](https://github.com/user-attachments/assets/cc16e02a-fec5-4a29-91e6-c87149e86e9a)
+
 
 
 
