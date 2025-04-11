@@ -4,7 +4,7 @@
 Service principals and managed identities are essential components in streamlining automation processes within an organization. 
 In Microsoft Fabric OneLake, shortcuts play a pivotal role in enabling disparate systems to interact without duplicating data. 
 However, incorporating service principals for remote source interactions and facilitating communication with Azure Data Lake firewalls introduces certain complexities, 
-as firewall restrictions typically block API communication. This documentation outlines an effective solution utilizing Fabric Data Factory pipelines to trigger a Spark 
+as firewall restrictions typically block API communication from remote locations. This documentation outlines an effective solution utilizing Fabric Data Factory pipelines to trigger a Spark 
 Notebook via the SemPy Fabric library and the FabricRestClient constructor, ensuring seamless integration while maintaining security.
 
 Furthermore, this documentation will elaborate on the process of granting object-level permissions to users for the newly created Delta Table within the LakeHouse.
