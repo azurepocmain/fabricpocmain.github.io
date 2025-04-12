@@ -170,6 +170,25 @@ df.write.format("delta").mode("overwrite").save(f"abfss://{LakeHouseContainer}@o
 
 
 Step 3: 
+Create a pipeline referencing the notebook.
+Click on the pipeline background, select "Parameters," and ensure that all the variables and their corresponding types are added as shown in the image below.
+
+![image](https://github.com/user-attachments/assets/35fed8be-7fc6-434b-a20f-2b25278babcc)
+
+Select the notebook activity, click on "Settings," expand "Base Parameters," and add each of the parameters listed above. 
+Please note that the format should appear as follows:
+```
+@string(pipeline().parameters.WorkspaceId)
+```
+Where after the parameters. will be the value from the "Parameters" list. 
+
+![image](https://github.com/user-attachments/assets/6798035b-74ef-4b22-86d9-521d7c19c615)
+
+All of these variables will be assigned to the notebook at runtime.
+
+
+
+Step 4: 
 To Provide find grain permission to the specific delta table. 
 Go to the Lakehouse and select settings and select "share"
 
