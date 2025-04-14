@@ -165,7 +165,7 @@ create_shortcut_process
 df = spark.read.parquet(f"abfss://{LakeHouseContainer}@onelake.dfs.fabric.microsoft.com/{LakeHouseName}.Lakehouse/{Onelake_Folder_Path}/{OneLakeSchemaName}") 
 
 # Persist the DataFrame to a Delta table corresponding to the specified table
-df.write.format("delta").mode("overwrite").save(f"abfss://{LakeHouseContainer}@onelake.dfs.fabric.microsoft.com/FabricLakeHouse.Lakehouse/Tables/{DeltaSchema}/{DeltaTableName}")
+df.write.format("delta").mode("overwrite").save(f"abfss://{LakeHouseContainer}@onelake.dfs.fabric.microsoft.com/{LakeHouseName}.Lakehouse/Tables/{DeltaSchema}/{DeltaTableName}")
 ```
 
 
