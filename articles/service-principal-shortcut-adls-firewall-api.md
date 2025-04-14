@@ -55,7 +55,7 @@ def get_fabric_token() -> str:
 
 def start_pipeline(workspace_id: str, pipeline_id: str, run_name: str = "Run via Python", pipeline_parameters: dict = None):
     # You can pass parameter below if needed. You can store the values in Azure SQL if you like as well
-    # Remember the below is calling a pipeline you will the pipeline ID as well as the workspace ID.
+    # Remember the below is calling a pipeline you will need the pipeline ID as well as the workspace ID.
     # This data can be acquired via import sempy.fabric as fabric; fabric.list_items(workspace="workspaceID")
     #You will also need the connection ID from the “Manage Connections and Gateways” settings page of the Datalake.
     #This assumes that you have your DataLake connection created and Trusted workspace access configured.
