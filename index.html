@@ -7,11 +7,86 @@
 
     <div class="logomain">
     <img src="articles/fabric_48_color.svg" width="170" height="150" alt="team_logo_lar"></div>
+	
+	<div class="top-right-section">
+    <div class="top-right-title">Events • Learn • Engage</div>
+	<div class="top-right-boxes">
+    <a href="https://msevents.microsoft.com/event?id=3974503395" class="hover-box" target="_blank">Hands On Event <br>With Fabric At The Garage <br>Next Tuesday, April 29th<br> Click for more details!</a>
+    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwzmTBpxB1tPgSekDs2kOMdURDY3OUlQWkw0TEg1UjdCRlBCOENJVVoySC4u" class="hover-box" target="_blank">Love what you see? Want something tailored for your team? Connect with Microsoft CSU to discover personalized solutions from a Microsoft engineer!</a>
+    <a href="https://azurepocmain.github.io/fabricpocmain.github.io/articles/coming-soon.html" class="hover-box">Coming Soon</a>
+	</div>
+	</div>
+
     <div class="header-container">
         <h4>The Million Things You Can Do On Microsoft Fabric</h4>
     </div>
     </div>
     <style>
+	
+			.top-right-section {
+		position: absolute;
+		top: 50px; /* adjust my position needed */
+		right: 20px;
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		z-index: 1000;
+		font-family: Arial, sans-serif;
+		}
+
+		.top-right-title {
+			font-size: 50px;
+			font-weight: bold;
+			color: #fff; 
+			background-color: transparent;
+		}
+
+		.top-right-boxes {
+			display: flex;
+			gap: 10px;
+		}
+	
+	.top-right-boxes {
+    position: absolute;
+    top: 100px; /* adjust this to move below the gray bar but this should work for now*/
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+	}
+
+	.hover-box {
+		background-color: #0078D4;
+		padding: 45px 30px;
+		font-size: 16px;
+		font-weight: bold;
+		text-decoration: none;
+		color:  #FFFFFF;
+		border: 2px solid #aaa;
+		border-radius: 8px;
+		transition: all 0.3s ease;
+		text-align: center;
+		width: 150px;           /* Lock width */
+		height: 100px;          /* Lock height */
+		display: flex;          /* Center content vertically */
+		align-items: center;
+		justify-content: center;
+		box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+		white-space: normal;    /* allow wrapping */
+		word-wrap: break-word;
+	}
+
+	.hover-box:hover {
+		background-color: #f0f0f0;
+		color: #000000;
+		transform: scale(1.05); /* smooth zoom effect */
+		content: "Go "; 
+		}
+	
+	
+
+
+
         body {
             background-color: #FFF;
             text-align: center;
@@ -300,6 +375,18 @@
         function scrollRight(containerId) {
             document.getElementById(containerId).scrollBy({ left: 300, behavior: 'smooth' });
         }
+		
+		
+		document.querySelectorAll('.hover-box').forEach(box => {
+    const originalText = box.textContent;
+    box.addEventListener('mouseenter', () => {
+        box.textContent = 'Go ➡';
+    });
+    box.addEventListener('mouseleave', () => {
+        box.textContent = originalText;
+    });
+});
+
     </script>
 
     <div id="disclaimer">
