@@ -10,7 +10,7 @@ ________________________________________________________________________________
 
 **Steps**
 
-*** Step1:*** 
+***Step1:*** 
 Within the same tenant as the Azure Fabric capacity, ensure the deployment of an Azure Automation account if one is not already provisioned.
 
 ![image](https://github.com/user-attachments/assets/5289cd37-79c8-4ac3-aa89-5fe2db63a24b)
