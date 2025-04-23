@@ -22,6 +22,7 @@ Next, create a Python runbook.
 
 
 
+
 ***Step2:***  
 Go to Azure Monitor in the same tenant as the Azure Fabric Capacity, select "Alerts" -> "Create" -> "Alert Rule"
 
@@ -46,6 +47,7 @@ Ensure that each capacity name selected in the "Scope" is mapped to its respecti
 This configuration is essential as it enables the webhook payload to reference the correct capacity name paired with its corresponding ID, establishing a mandatory dependency for the operational code.
 
 ![image](https://github.com/user-attachments/assets/48e92cd2-aa61-45aa-8a28-000d1439ed13)
+
 
 
 ***Step3:*** 
@@ -236,6 +238,8 @@ if __name__ == "__main__":
 
     restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, capacity_id )
 ```
+
+
 
 ***Step4:***
 Save and publish the code. Ensure that the runbook is republished following each modification to guarantee proper functionality.
