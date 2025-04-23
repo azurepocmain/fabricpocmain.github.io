@@ -186,8 +186,8 @@
                 <!-- Boxes dynamically added via JavaScript -->
             </div>
             <div class="nav-buttons">
-                <button onclick="scrollLeft('performance-boxes')">⬅ Prev</button>
-                <button onclick="scrollRight('performance-boxes')">Next ➡</button>
+                <button onclick="scrollLeft('event-boxes')">⬅ Prev</button>
+                <button onclick="scrollRight('event-boxes')">Next ➡</button>
             </div>
         </div>
         
@@ -251,7 +251,8 @@
                 const data = {
 				 "event": [
                 "Hands On Event With Fabric At The Garage Next Tuesday, April 29th Click for more details!",
-                "Love what you see? Want something tailored for your team? Connect with Microsoft CSU to discover personalized solutions from a Microsoft engineer!"
+                "Love what you see? Want something tailored for your team? Connect with Microsoft CSU to discover personalized solutions from a Microsoft engineer!",
+		"Explore Microsoft Fabric like never before with insightful videos led by Bradley Ball, our expert extraordinaire!"			 
             ],
             "performance": [
                 "Querying Fabric OneLake Fast",
@@ -283,7 +284,7 @@
             "general": [
                 "Notebook Lakehouse Current Session",
                 "Service Principal Shortcut ADLS Firewall API",
-                "Coming Soon",
+                "Auto Start DB Mirrors After Capacity Pause",
                 "Coming Soon",
                 "Coming Soon",
                 "Coming Soon"
@@ -315,7 +316,8 @@
 				if (sectionId === "event-boxes") {
 					const customEventPaths = {
 						"Hands On Event With Fabric At The Garage Next Tuesday, April 29th Click for more details!": "https://msevents.microsoft.com/event?id=3974503395",
-						"Love what you see? Want something tailored for your team? Connect with Microsoft CSU to discover personalized solutions from a Microsoft engineer!": "https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwzmTBpxB1tPgSekDs2kOMdURDY3OUlQWkw0TEg1UjdCRlBCOENJVVoySC4u"
+						"Love what you see? Want something tailored for your team? Connect with Microsoft CSU to discover personalized solutions from a Microsoft engineer!": "https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwzmTBpxB1tPgSekDs2kOMdURDY3OUlQWkw0TEg1UjdCRlBCOENJVVoySC4u",
+						"Explore Microsoft Fabric like never before with insightful videos led by Bradley Ball, our expert extraordinaire!": "https://www.youtube.com/playlist?list=PLGhvA9jw5mvgHA35IF31JMNJsGL4sKvsE"
 					};
 					link.href = customEventPaths[topic] || "#"; // fallback to "#" if topic not mapped
 				} else {
