@@ -5,6 +5,7 @@ In certain operational scenarios, it may be necessary to temporarily pause a Fab
 To resume functionality, the mirroring process must be re-initiated by stopping and restarting it. This can become a cumbersome task for organizations managing multiple capacities or extensive database mirroring setups. 
 This document outlines a solution to automate this process using Azure Monitor in conjunction with Azure Automation, thereby streamlining operations and reducing manual intervention.
 It is important to note that the signal utilized here differs from when a Fabric Capacity is scaled to an alternate capacity size. In that case, it is imperative to apply the database mirroring deltas seamlessly without necessitating the cessation or reinitialization of the process.
+
 _______________________________________________________________________________________
 
 **Steps**
