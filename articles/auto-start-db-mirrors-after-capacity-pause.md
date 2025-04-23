@@ -10,7 +10,7 @@ ________________________________________________________________________________
 
 **Steps**
 
-Step1: 
+*** Step1:*** 
 Within the same tenant as the Azure Fabric capacity, ensure the deployment of an Azure Automation account if one is not already provisioned.
 
 ![image](https://github.com/user-attachments/assets/5289cd37-79c8-4ac3-aa89-5fe2db63a24b)
@@ -22,7 +22,7 @@ Next, create a Python runbook.
 
 
 
-Step2: 
+***Step2:***  
 Go to Azure Monitor in the same tenant as the Azure Fabric Capacity, select "Alerts" -> "Create" -> "Alert Rule"
 
 ![image](https://github.com/user-attachments/assets/0c51554d-fbbf-4656-9e71-5d1578a785a5)
@@ -48,7 +48,7 @@ This configuration is essential as it enables the webhook payload to reference t
 ![image](https://github.com/user-attachments/assets/48e92cd2-aa61-45aa-8a28-000d1439ed13)
 
 
-Step3: 
+***Step3:*** 
 To facilitate this process, a service principal will be utilized.
 The service principal has been granted the "Contributor" role within the workspace for initial setup and testing purposes. (Other permission configurations are currently under evaluation.)
 Within the Azure Automation account created in Step 1, navigate to the "Variables" section located under "Shared Resources" and proceed to define the following three secure variables:
@@ -237,12 +237,16 @@ if __name__ == "__main__":
     restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, capacity_id )
 ```
 
-Step4:
+***Step4:***
 Save and publish the code. Ensure that the runbook is republished following each modification to guarantee proper functionality.
 
 ![image](https://github.com/user-attachments/assets/e8166a74-3483-4a0c-88a8-ba449bf28093)
 
 Test to confirm the behavior. 
+
+
+
+
 
 ***DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. 
 THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS 
