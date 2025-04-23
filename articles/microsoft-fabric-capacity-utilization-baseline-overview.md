@@ -1,4 +1,4 @@
-# Auto Start DB Mirrors After Capacity Pause
+# Microsoft Fabric Capacity Utilization Baseline Overview
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 Establishing an accurate baseline for Microsoft Fabric resource utilization is essential for ensuring optimal sizing and effective allocation of workspace resources. 
