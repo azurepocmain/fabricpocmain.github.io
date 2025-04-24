@@ -1,4 +1,4 @@
-# MongoDB Mirroring To Fabric
+# Atlas MongoDB Mirroring To Fabric
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 As disparate systems continue to proliferate rapidly within organizations, the necessity to integrate these systems into a unified repository has become paramount. 
@@ -17,6 +17,26 @@ During testing, incremental changes took approximately 5 minutes to replicate. A
 Note that in the Azure deployment, this parameter is labeled "IncrementalSyncMaxTimeInterval" within the Azure Resource Manager template. 
 Also, I was concurrently inserting multiple records. When inserting records sequentially, latency increased exponentially. 
 Additionally, specific collections can be designated using the parameter: MONGO_COLLECTION = ["collection1", "collection2"].
+
+To initiate the process, it is essential to provide the Atlas MongoDB connection string, database name, collection name, Fabric OneLake DFS endpoint path, and service principal credentials. 
+These details are necessary for configuring the source and destination information required for the Atlas MongoDB integration. 
+Please note that you have the ability to provide one or more collection names to replicate to Fabric.
+Further illustration is provided below.
+
+![image](https://github.com/user-attachments/assets/d11326a9-9891-4a56-b9a2-be3e8bfbd538)
+
+To ensure the application operates seamlessly, it is imperative to verify that the required libraries are installed within the Python environment. 
+Leveraging Azure App Services with redundancy is recommended for optimal application performance. 
+Alternatively, a virtual machine can be utilized as a deployment platform. 
+Additionally, it is crucial to install the Flask library as it is a fundamental requirement for running the application.
+
+![image](https://github.com/user-attachments/assets/7dea5efe-d945-4982-befd-8e4aaba412be)
+
+To invoke the application in a virtual environment you will invoke the following:
+```
+python app.py
+```
+
 
 
 If it is necessary to convert the specified MongoDB collection into an external Lake in Eventhouse, the analogous location utilized for other tables should be used: abfss://vicfabricpoc@onelake.dfs.fabric.microsoft.com/FabricLakeHouse.Lakehouse/Tables/SalesLT/Address. However, it is imperative to verify the path using Microsoft Azure Storage Explorer to confirm the accurate absolute path. The path will consistently conclude with the table name as illustrated in the accompanying image:
