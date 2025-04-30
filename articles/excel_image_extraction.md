@@ -12,7 +12,7 @@ import xlwings as xw
 import os
 import time
 # Unfortunately this needs to be run on a windows machine with excel as xlwings needs to open the excel file
-# Saves all the iamges to a PDF file for each page
+# Saves all the images to a PDF file for each page
 wb = xw.Book("path/excel_file/file.xlsx")
 
 output_dir = "path/output"
