@@ -109,13 +109,15 @@ mssparkutils.notebook.exit(md_string)
 ***Step5:***
 Create a pipeline and drag the two activities below: 
 
-![image](https://github.com/user-attachments/assets/2c8bafe3-1af8-481a-a0d8-f363e4f394b4)
+![image](https://github.com/user-attachments/assets/4979ebc3-b155-4116-a634-ebd1c48f433e)
+
 
 
 ***Step6:***
 In the notebook, select the "Settings" and the notebook that was created in Step3. 
 
-![image](https://github.com/user-attachments/assets/e22cdfe0-929e-497c-885f-446a9665e556)
+![image](https://github.com/user-attachments/assets/50a096da-3194-4911-81d6-5e0b7bf5fcc8)
+
 
 
 ***Step7:***
@@ -128,10 +130,13 @@ For the body, go to the bottom of the page and select "View in expression builde
 ![image](https://github.com/user-attachments/assets/c469bea9-0cc3-4e16-a9cf-000c4f2d02bd)
 
 ```
-@activity('NotebookPruviewAPI').output.result.exitValue
+@activity('NotebookPurviewAPI').output.result.exitValue
 ```
 
-![image](https://github.com/user-attachments/assets/5740311f-c501-4174-bfb4-24eb8b8a34df)
+![image](https://github.com/user-attachments/assets/5064921b-0969-4169-b673-6f76f427110f)
+
+![image](https://github.com/user-attachments/assets/5ea8c26b-919b-45ae-9b54-9c1d5916e198)
+
 
 ***Step9:***
 Run the pipeline to confirm the behavior, then setup a run schedule.
