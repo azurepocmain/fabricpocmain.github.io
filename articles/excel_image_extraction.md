@@ -128,12 +128,16 @@ def batch_process_folder(pdf_folder, output_dir, dpi=600, poppler_path=None):
 # First Invoking the excel to image PDF extraction process
 input_file="path/excel_file/file.xlsx"
 output_folder="path/extracted_image_pdf/output"
+
 excel_image_extract_to_pdf(input_file,output_folder )
 
+
 # Second Invoking The PDF To Image Conversion Process
+output_dir="path/image_folder/output"
+
 batch_process_folder(
-    pdf_folder="path/pdf_folder/output",
-    output_dir="path/image_folder/output",
+    pdf_folder=output_folder,
+    output_dir=output_dir,
     dpi=600,
     poppler_path=r"C:\poppler\Library\bin"  ## or None if installed system-wide this needs to be installed prior to the run, and the path \ are correct 
 )
