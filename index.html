@@ -441,24 +441,37 @@
 
     </script>
 
-    <div id="disclaimer">
-
-    <div id="buttons1"><button onclick="myFunction1()"><h4>Privacy/Disclaimer</h4></button></div>
-    <div id="tip1" style="display: none;">
-    <p>We partner with Microsoft Clarity and Microsoft Advertising to capture how you use and interact with our website through behavioral metrics, heatmaps, and session replay to improve and market our products/services. Website usage data is captured using first and third-party cookies and other tracking technologies to determine the popularity of products/services and online activity. Additionally, we use this information for site optimization, fraud/security purposes, and advertising. For more information about how Microsoft collects and uses your data, visit the Microsoft Privacy Statement: <a href="https://www.microsoft.com/en-us/privacy/privacystatement"  alt="Microsoft Privacy Statement" target="_blank"> Microsoft Privacy Statement</a>   </p>    
-    <p>This site is provided for the purpose of illustration and learning and warrants no liability on the creators or their company. THIS SITE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. Your software product in which the Site Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys’ fees, that arise or result from the use of this SITE.  </p>
-    
+<!-- Collapsible disclaimer -->
+  <div id="disclaimer" style="margin-top: 2rem;">
+    <button onclick="toggleDisclaimer()" style="font-size: 1rem;">Privacy/Disclaimer</button>
+    <div id="disclaimerContent" style="display: none; padding: 1rem; background: #f9f9f9; border: 1px solid #ddd;">
+      <p>
+        We partner with Microsoft Clarity and Microsoft Advertising to capture how you use and interact with our website
+        through behavioral metrics, heatmaps, and session replay to improve and market our products/services.
+        Website usage data is captured using first and third-party cookies and other tracking technologies.
+        For more details, see:
+        <a href="https://www.microsoft.com/en-us/privacy/privacystatement" target="_blank" rel="noopener noreferrer">
+          Microsoft Privacy Statement
+        </a>.
+      </p>
+      <p>
+        This site is provided for the purpose of illustration and learning and warrants no liability on the creators or their company. THIS SITE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. Your software product in which the Site Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys’ fees, that arise or result from the use of this SITE.  
+      </p>
     </div>
-    <script>
-    function myFunction1() {
-        var x = document.getElementById('tip1');
-        if (x.style.display === 'none') {
-            x.style.display = 'block';
-        } else {
-            x.style.display = 'none';
-        }
+  </div>
+
+  <script>
+    function toggleDisclaimer() {
+      const div = document.getElementById("disclaimerContent");
+      div.style.display = div.style.display === "none" ? "block" : "none";
     }
-    </script>
+  </script>
+
+  <!-- Footer with privacy link -->
+  <footer style="margin-top: 3rem; padding: 1rem; text-align: center; font-size: 0.9rem; color: #555;">
+    © 2025 /fabricpocmain.github.io · 
+    <a href="https://www.microsoft.com/en-us/privacy/privacystatement" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+  </footer>
 
 
 
