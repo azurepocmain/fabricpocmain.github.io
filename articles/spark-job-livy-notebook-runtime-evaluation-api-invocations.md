@@ -682,3 +682,10 @@ if __name__ == "__main__":
     print("Run ID:", result.get("id", "No run ID returned; pipeline may be running asynchronously."))
 
 ```
+
+
+_______________________________________________________________________________________
+
+Among all execution methods evaluated within Fabric Spark engine, the Spark job demonstrated superior performance, achieving the fastest runtime of just 2 minutes. 
+This makes it significantly more efficient compared to the potential other options. 
+From a usability perspective, the Spark interactive notebook demonstrates superior ease of use, making it the preferred choice for time to market. 
