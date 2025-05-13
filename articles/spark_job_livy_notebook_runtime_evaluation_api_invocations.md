@@ -9,8 +9,9 @@ By incorporating these capabilities into application-level APIs or deployment to
 It is important to highlight that all runtime instances below utilize the same Spark transformation via API, where the parameters are transmitted within the JSON payload of the request body.
 _______________________________________________________________________________________
 
-**Livy Job Runtime Metrics**
-The total execution duration of the Livy job was recorded at an efficient `2 minutes and 46` seconds as we can see below. 
+**Livy Job Runtime Metrics:**
+
+The total execution duration of the Livy job was recorded at an efficient `2 minutes and 46 seconds` as we can see below. 
 ![image](https://github.com/user-attachments/assets/b302d484-b98f-456a-aa5d-2fe05912cb58)
 
 The Livy job was stored in a Fabric Lakehouse and incorporated the following code snippet. Note how the `argparse` library and the `argparse.ArgumentParser()` function are utilized to capture the input 
@@ -198,8 +199,9 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Spark Job Definition Runtime Metrics**
-The total execution duration of the Spark Job Definition via API call was recorded at  `2 minutes and 45` seconds as we can see below. 
+**Spark Job Definition Runtime Metrics:**
+
+The total execution duration of the Spark Job Definition via API call was recorded at  `2 minutes and 45 seconds` as we can see below. 
 
 ![image](https://github.com/user-attachments/assets/9c6a41a7-8838-4337-afcb-13ee279ca1e0)
 
@@ -319,12 +321,18 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Notebook Runtime Metrics**
-The total execution duration of the interactive Notebook via API call was recorded at  `3 minutes and 47` seconds as we can see below. 
+**Notebook Runtime Metrics:**
+
+The total execution duration of the interactive Notebook via API call was recorded at  `3 minutes and 47 seconds` as we can see below. 
 
 ![image](https://github.com/user-attachments/assets/4af50553-5021-4300-b3d1-ab46607fced8)
 
-The interactive Notebook was invoked the same exact code as the above. 
+The interactive Notebook invoked the exact same code as above, however, the use of the `argparse` library is not required. 
+This is because the interactive Notebook automatically maps the parameters to the correct key variables during runtime in the first cell.
+
+
+![image](https://github.com/user-attachments/assets/447274e5-5352-4eb0-b7da-632d5a9d48d3)
+
 
 To call the interactive Notebook via API the below code was leveraged: 
 
@@ -449,17 +457,227 @@ if __name__ == "__main__":
 ```
 
 
+_______________________________________________________________________________________
+
+**Notebook In Pipeline Runtime Metrics:**
+
+The total execution duration of the interactive Notebook in a Fabric Pipeline via API call was recorded at  `4 minutes and 19 seconds` as we can see below. 
+
+![image](https://github.com/user-attachments/assets/d8f209f8-7bc1-4307-a26a-32f6ebbc2396)
+
+The same code stack notebook was used to execute the performance test. 
+To pass the parameters from the API call to the notebook, the parameters must first be declared within the pipeline.
+![image](https://github.com/user-attachments/assets/cf310e0c-c4e1-4b3e-a99b-873f322394ce)
+
+Finally, assign those parameters to the notebook's base parameters using the following format for each parameter:  `@string(pipeline().parameters.LakeHouseContainer)`
+
+
+![image](https://github.com/user-attachments/assets/6764050f-d546-4060-8a27-31da51ef55a7)
+
+To call the Pipeine interactive Notebook via API the below code was leveraged: 
+
+```
+#Notebook run in pipeline
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def get_fabric_token() -> str:
+    """Obtain an Azure AD access token for Microsoft Fabric API."""
+    tenant_id = os.getenv("TENANT_ID")
+    client_id = os.getenv("CLIENT_ID")
+    client_secret = os.getenv("CLIENT_SECRET")
+
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+    payload = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials",
+        "scope": "https://api.fabric.microsoft.com/.default"
+    }
+
+    try:
+        response = requests.post(token_url, data=payload)
+        response.raise_for_status()
+        return response.json()["access_token"]
+    except requests.RequestException as e:
+        raise Exception(f"Failed to get token: {e}")
+
+
+def start_pipeline(workspace_id: str, pipeline_id: str, run_name: str = "Run via Python", pipeline_parameters: dict = None):
+    # You can pass parameter below if needed. Have two code stacks to share with client one with parameters and another without
+    token = get_fabric_token()
+
+    url = (
+        f"https://api.fabric.microsoft.com/v1/workspaces/"
+        f"{workspace_id}/items/{pipeline_id}/jobs/instances?jobType=Pipeline"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    # Log the payload for debugging purposes
+    payload = {"runName": run_name}
+    if pipeline_parameters:
+        payload["executionData"] = {"parameters": pipeline_parameters}
+    print("DEBUG: Payload being sent:", payload)
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        # If there's no content, avoid calling .json()
+        if response.content:
+            result = response.json()
+        else:
+            result = {}
+
+        print(f"Pipeline triggered successfully: {run_name}")
+        return result
+
+    except requests.RequestException as e:
+        raise Exception(f"Failed to start pipeline: {e}")
+
+
+if __name__ == "__main__":
+    # Environment parameters for the pipeline
+    workspace_id = os.getenv("FABRIC_WORKSPACE_ID")
+    pipeline_id = os.getenv("FABRIC_PIPELINE_ID_PERFORMANCE_TEST")
+    run_name = "Triggered from Python SKD service principal invoking notebook created by user"
+
+    # Add your parameters here we can store them in Azure SQL or Fabric DW to allow more automated approach and update a column when completed. 
+    pipeline_parameters = {
+        "LakeHouseContainer": os.getenv("LakeHouseContainer"),
+        "LakeHouseName": os.getenv("LakeHouseName"),
+        "DeltaSchema": os.getenv("DeltaSchema"),
+        "ParquetFileName": os.getenv("ParquetFileName")
+    }
+
+    if not workspace_id or not pipeline_id:
+        raise Exception("Workspace ID and Pipeline ID must be set in .env")
+
+    result = start_pipeline(workspace_id, pipeline_id, run_name, pipeline_parameters)
+    # Print run ID if available, or note that no content was returned.
+    print("Run ID:", result.get("id", "No run ID returned; pipeline may be running asynchronously."))
+
+```
 
 
 
+**Spark Job In Pipeline Runtime Metrics:**
+
+The total execution duration of the Spark Job in a Fabric Pipeline via API call was recorded at  `3 minutes and 37 seconds`  as we can see below. 
+
+![image](https://github.com/user-attachments/assets/f2269d60-4e74-49e2-85e8-3f59fff21c0a)
+
+The same code stack Spark job was used to execute the performance test. 
+
+Remember, to pass the parameters from the API call to the Spark job, the parameters must first be declared within the pipeline.
+![image](https://github.com/user-attachments/assets/cf310e0c-c4e1-4b3e-a99b-873f322394ce)
+
+Finally, we need to assign these parameters to the Spark job's `Command line arguments`, which can be found under Spark job settings -> Advanced settings -> Command line arguments, as shown in the image below.
+
+![image](https://github.com/user-attachments/assets/305ccce9-f01a-4c02-9bb6-df960f3ea1cd)
+
+![image](https://github.com/user-attachments/assets/c14da978-4313-48f4-9fcb-e837a57d532a)
 
 
+To call the Pipeine Spark Job via API the below code was leveraged: 
 
-**Notebook Runtime Metrics**
-The total execution duration of the interactive Notebook via API call was recorded at  `3 minutes and 47` seconds as we can see below. 
+```
+#Notebook run with Spark Job
+import os
+import requests
+from dotenv import load_dotenv
 
-![image](https://github.com/user-attachments/assets/4af50553-5021-4300-b3d1-ab46607fced8)
-
-The interactive Notebook was invoke the same exact code 
+load_dotenv()
 
 
+def get_fabric_token() -> str:
+    """Obtain an Azure AD access token for Microsoft Fabric API."""
+    tenant_id = os.getenv("TENANT_ID")
+    client_id = os.getenv("CLIENT_ID")
+    client_secret = os.getenv("CLIENT_SECRET")
+
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+    payload = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials",
+        "scope": "https://api.fabric.microsoft.com/.default"
+    }
+
+    try:
+        response = requests.post(token_url, data=payload)
+        response.raise_for_status()
+        return response.json()["access_token"]
+    except requests.RequestException as e:
+        raise Exception(f"Failed to get token: {e}")
+
+
+def start_pipeline(workspace_id: str, pipeline_id: str, run_name: str = "Run via Python", job_parameters: dict = None):
+    # You can pass parameter below if needed. Have two code stacks to share with client one with parameters and another without
+    token = get_fabric_token()
+
+    url = (
+        f"https://api.fabric.microsoft.com/v1/workspaces/"
+        f"{workspace_id}/items/{pipeline_id}/jobs/instances?jobType=Pipeline"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    # Log the payload for debugging purposes
+    payload = {"runName": run_name}
+    if job_parameters:
+        payload["executionData"] = {"parameters": job_parameters}
+    print("DEBUG: Payload being sent:", payload)
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        # If there's no content, avoid calling .json()
+        if response.content:
+            result = response.json()
+        else:
+            result = {}
+
+        print(f"Pipeline triggered successfully: {run_name}")
+        return result
+
+    except requests.RequestException as e:
+        raise Exception(f"Failed to start pipeline: {e}")
+
+
+if __name__ == "__main__":
+    # Environment parameters for the pipeline
+    workspace_id = os.getenv("FABRIC_WORKSPACE_ID")
+    pipeline_id = os.getenv("FABRIC_PIPELINE_ID_PERFORMANCE_TEST2")
+    run_name = "Triggered from Python SKD service principal invoking notebook created by user"
+
+    # Add your parameters here we can store them in Azure SQL or Fabric DW to allow more automated approach and update a column when completed. 
+    pipeline_parameters = {
+        "LakeHouseContainer": os.getenv("LakeHouseContainer"),
+        "LakeHouseName": os.getenv("LakeHouseName"),
+        "DeltaSchema": os.getenv("DeltaSchema"),
+        "ParquetFileName": os.getenv("ParquetFileName")
+    }
+
+    if not workspace_id or not pipeline_id:
+        raise Exception("Workspace ID and Pipeline ID must be set in .env")
+
+    result = start_pipeline(workspace_id, pipeline_id, run_name, pipeline_parameters)
+    # Print run ID if available, or note that no content was returned.
+    print("Run ID:", result.get("id", "No run ID returned; pipeline may be running asynchronously."))
+
+```
