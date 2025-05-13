@@ -7,6 +7,7 @@ This documentation aims to detail the runtime metrics, configuration procedures,
 By incorporating these capabilities into application-level APIs or deployment tools, organizations can achieve enhanced automation and monitoring, thereby optimizing operational flexibility and scalability.
 
 It is important to highlight that all runtime instances below utilize the same Spark transformation via API, where the parameters are transmitted within the JSON payload of the request body.
+
 _______________________________________________________________________________________
 
 **Livy Job Runtime Metrics:**
