@@ -569,7 +569,7 @@ if __name__ == "__main__":
 
 ```
 
-
+_______________________________________________________________________________________
 
 **Spark Job In Pipeline Runtime Metrics:**
 
@@ -583,6 +583,7 @@ Remember, to pass the parameters from the API call to the Spark job, the paramet
 ![image](https://github.com/user-attachments/assets/cf310e0c-c4e1-4b3e-a99b-873f322394ce)
 
 Finally, we need to assign these parameters to the Spark job's `Command line arguments`, which can be found under Spark job settings -> Advanced settings -> Command line arguments, as shown in the image below.
+To enable seamless parameter passing into the Spark job, a concatenation function must be utilized, combining strings and variables effectively.
 
 ![image](https://github.com/user-attachments/assets/305ccce9-f01a-4c02-9bb6-df960f3ea1cd)
 
