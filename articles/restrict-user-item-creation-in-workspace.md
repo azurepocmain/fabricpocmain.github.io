@@ -9,7 +9,7 @@ ________________________________________________________________________________
 
 **Solution**
 
-In the `Admin Portal` -> ` Capacity Settings` -> select the capacity -> `Delegated tenant settings` -> `Users can create Fabric items` -> `Except specific security group` and provide the security group users are assigned to.
+In the `Admin Portal` -> `Capacity Settings` -> select the capacity -> `Delegated tenant settings` -> `Users can create Fabric items` -> `Except specific security group` and provide the security group users are assigned to.
 
 ![image](https://github.com/user-attachments/assets/72d1a442-02ec-46e6-8ffd-72fbe98bb20e)
 
