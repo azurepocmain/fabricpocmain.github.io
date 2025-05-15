@@ -10,7 +10,7 @@ It is important to highlight that all runtime instances below utilize the same S
 
 _______________________________________________________________________________________
 
-**Livy Job Runtime Metrics:**
+## Livy Job Runtime Metrics: ##
 
 The total execution duration of the Livy job was recorded at an efficient `2 minutes and 46 seconds` as we can see below. 
 ![image](https://github.com/user-attachments/assets/b302d484-b98f-456a-aa5d-2fe05912cb58)
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Spark Job Definition Runtime Metrics:**
+## Spark Job Definition Runtime Metrics: ##
 
 The total execution duration of the Spark Job Definition via API call was recorded at  `2 minutes and 45 seconds` as we can see below. 
 
@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Notebook Runtime Metrics:**
+## Notebook Runtime Metrics: ##
 
 The total execution duration of the interactive Notebook via API call was recorded at  `3 minutes and 47 seconds` as we can see below. 
 
@@ -460,7 +460,7 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Notebook In Pipeline Runtime Metrics:**
+ ## Notebook In Pipeline Runtime Metrics: ##
 
 The total execution duration of the interactive Notebook in a Fabric Pipeline via API call was recorded at  `4 minutes and 19 seconds` as we can see below. 
 
@@ -571,7 +571,7 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
-**Spark Job In Pipeline Runtime Metrics:**
+## Spark Job In Pipeline Runtime Metrics: ##
 
 The total execution duration of the Spark Job in a Fabric Pipeline via API call was recorded at  `3 minutes and 37 seconds`  as we can see below. 
 
@@ -593,7 +593,7 @@ To enable seamless parameter passing into the Spark job, a concatenation functio
 To call the Pipeine Spark Job via API the below code was leveraged: 
 
 ```
-#Notebook run with Spark Job
+#Pipeline run with Spark Job
 import os
 import requests
 from dotenv import load_dotenv
