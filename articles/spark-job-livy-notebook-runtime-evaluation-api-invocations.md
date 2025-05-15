@@ -460,7 +460,7 @@ if __name__ == "__main__":
 
 _______________________________________________________________________________________
 
- ## Notebook In Pipeline Runtime Metrics: ##
+## Notebook In Pipeline Runtime Metrics: ##
 
 The total execution duration of the interactive Notebook in a Fabric Pipeline via API call was recorded at  `4 minutes and 19 seconds` as we can see below. 
 
