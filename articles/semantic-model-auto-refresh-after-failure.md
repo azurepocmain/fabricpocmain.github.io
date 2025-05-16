@@ -166,7 +166,7 @@ Once the KQL has been invoked, select new alert rule.
 ![image](https://github.com/user-attachments/assets/12d6eeed-8e69-416b-9e63-69f2e2a66266)
 
 
-## The last steps will be implmented tomorrow ## 
+## The last steps will be implmented tomorrow TO BE CONTINUED! ## 
 
 
 
