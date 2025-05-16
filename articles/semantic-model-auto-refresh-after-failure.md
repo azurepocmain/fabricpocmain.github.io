@@ -10,7 +10,7 @@ These components collectively ensure a robust and reliable refresh process.
 It is important to reiterate that this solution is contingent upon the Microsoft Fabric Capacity Metrics application having an assigned capacity, as the functionality may not operate effectively without this prerequisite.
 _______________________________________________________________________________________
 
-## Steps: ##
+## Steps ##
 
 ## Step1: ##
 Go the Microsoft Fabric Capacity Metrics App Workspace, and select `Workspace Settings` -> `Monitoring` -> enable `Eventhouse`. 
