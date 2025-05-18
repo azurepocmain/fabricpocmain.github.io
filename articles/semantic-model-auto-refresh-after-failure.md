@@ -164,9 +164,11 @@ Access your Azure Log Analytics account, navigate to the `Logs` section, and inp
 This KQL query will execute remotely, enabling the EventHouse to detect and aggregate semantic model job failures effectively, which can then be utilized to establish alert thresholds.
 Please disregard any errors shown in the KQL pane, as the query should still execute successfully despite these warnings.
 
-adx('https://your_eventhouse_uri_goes_here.fabric.microsoft.com/Monitoring Eventhouse').SemanticModelLogs | where Status in  ("Failed" ) and ItemName =="Fabric Capacity Metrics" | count 
+```
+adx('https://your_eventhouse_uri_goes_here.fabric.microsoft.com/Monitoring Eventhouse').SemanticModelLogs | where Status ==  "Failed" and ItemName =="Fabric Capacity Metrics" | count 
+```
 
-![image](https://github.com/user-attachments/assets/233412cd-cf2d-465c-9b25-e14b501f275c)
+![image](https://github.com/user-attachments/assets/7dfac93c-080a-4b2a-8ddd-d6adac154cd8)
 
 
 _______________________________________________________________________________________
@@ -211,7 +213,7 @@ Grant the Alert managed identity read access to the Capacity Metrics workspace f
 
 
 _______________________________________________________________________________________
-## Step7: ##
+## Step8: ##
 
 Test the overall solution. 
 
