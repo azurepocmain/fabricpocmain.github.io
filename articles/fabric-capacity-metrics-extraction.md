@@ -1,8 +1,8 @@
 # Fabric Capacity Metrics Extraction
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
-***Updated Log: 
-6-6-2025
+***Update Log: <p>
+6-6-2025 <p>
 3-12-2025***
 
 As organizations deploy Fabric workspace capacity to multiple departments, it becomes imperative to implement tracking mechanisms for accurate inter-departmental billing. 
