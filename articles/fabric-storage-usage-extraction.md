@@ -13,8 +13,7 @@ Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > M
 
 *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
-Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Choose “Fabric capacity” and allocate the necessary capacity. The allocated capacity is essential for executing the notebook provided below against the semantic model for the Microsoft Fabric Capacity Metrics as you may get a permission exception  if not configured. 
-![image](https://github.com/user-attachments/assets/f4dcb180-f3fc-4955-b947-bba6cc50aa5d)
+Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Ensure that  “Pro” is selected which should be the default. The assigned capacity (Pro) remains until the extraction process initiates. This procedure has been automated, ensuring a stable and reliable extraction of Capacity Metrics App data from the semantic model via altering the capacity from Pro to Fabric. This configuration is essential, as failing to use Fabric capacity during extraction may result in permission exceptions. This approach differs from the initial solution, which kept the Capacity Metrics App capacity permanently set to Fabric, a configuration that is no longer necessary. In addition, an iterative loop has been integrated to collect telemetry data from each capacity within the environment, allowing for comprehensive resource utilization analysis.
 
 
 *Step3:*
@@ -24,6 +23,11 @@ Finally, ensure that a Fabric Data Warehouse has been established, as it will se
 Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
 
 **PySpark Code Steps: Fabric Capacity Metrics Extraction:**
+
+**Please note that the following step represents the third phase in the redesigned pipeline for comprehensive capacity retrieval within the environment. Refer to the "Fabric Capacity Metrics Extraction" documentation for the complete workflow, however, substitute the section titled "PySpark Code Steps: Capacity Metric Specific Capacity Data Extraction ETL to Data Warehouse: Notebook 3" with the instructions detailed below in a new pipeline of course. You can just make a copy of the metric pipeline, rename it to storage and add the below. In the pipeline activity selection, integrate this into "Activity 4 Inside For Each Loop Notebook 4" within your pipeline configuration. Finally, it is critical to avoid executing the metric and storage extraction processes concurrently, as simultaneous operations may introduce conflicts or inconsistencies in the capacity selected data.**
+
+<a href="https://azurepocmain.github.io/fabricpocmain.github.io/articles/fabric-capacity-metrics-extraction.html" target="_blank">Fabric Capacity Metrics Extraction</a>
+
 
 Getting the Fabric Capacity Workspace ID
 To obtain the Workspace ID for the Fabric Capacity Metrics workspace execute the following command utilizing PySpark within the Spark notebook. Ensure you have identified the Workspace ID of the remote Capacity Metrics App. We are using the workspace ID as there can be some errors if we solely use the workspace name as it can be altered etc.. 
@@ -174,7 +178,7 @@ df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, Fabir
 # df_new_workspace_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces") # Update Table Name as needed
 ```
 
-ℹ️ Make sure to schedule a job that runs the above Python notebook either daily or every 13 days. 
+ℹ️ Make sure to schedule a job that runs the above Python notebook daily. 
 This is important because after 14 days, the older data will be purged, as the metrics have a 14-day retention period.
 
 
