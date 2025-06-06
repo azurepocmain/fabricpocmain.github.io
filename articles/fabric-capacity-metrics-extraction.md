@@ -14,18 +14,164 @@ Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > M
 
 *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
-Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Choose “Fabric capacity” and allocate the necessary capacity. The allocated capacity is essential for executing the notebook provided below against the semantic model for the Microsoft Fabric Capacity Metrics as you may get a permission exception  if not configured. 
-![image](https://github.com/user-attachments/assets/f4dcb180-f3fc-4955-b947-bba6cc50aa5d)
+Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Ensure that  “Pro” is selected which should be the default. The assigned capacity (Pro) remains until the extraction process initiates. This procedure has been automated, ensuring a stable and reliable extraction of Capacity Metrics App data from the semantic model via altering the capacity from Pro to Fabric. This configuration is essential, as failing to use Fabric capacity during extraction may result in permission exceptions. This approach differs from the initial solution, which kept the Capacity Metrics App capacity permanently set to Fabric, a configuration that is no longer necessary. In addition, an iterative loop has been integrated to collect telemetry data from each capacity within the environment, allowing for comprehensive resource utilization analysis.
+![image](https://github.com/user-attachments/assets/f320cdcf-275c-4598-8d11-be8be7b2a67a)
 
 
 *Step3:*
 Finally, ensure that a Fabric Data Warehouse has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
 
 *Step4:*
-Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
+To ensure the API call accurately reflects updated capacity settings, initialize three distinct Spark notebooks utilizing PySpark. Each notebook should execute unique logic below, providing isolated session contexts necessary for the API to recognize capacity modifications. Attempting to combine the initial and final logic within a single script may prevent the session from detecting the newly applied API changes.
+Execute the code steps as follows for the three notebooks:
+
 
 **PySpark Code Steps: Fabric Capacity Metrics Extraction:**
 
+**PySpark Code Steps: Modify Capacity from Pro to Fabric:**
+
+**Notebook 1**
+
+For the next step, create a new notebook and consider naming it something like “Capacity Metric Job Capacity Adjustment Notebook1.” Once created, add the script provided below. Be sure to modify the script variables as needed to fit your requirements.
+
+```
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+
+client = fabric.FabricRestClient()
+
+# It is recommended to assign the workspace to a Fabric capacity at runtime, as alternative methods are susceptible to increased variability in operational behavior. 
+# This configuration ensures that capacity remains in its default state until an explicit query or reallocation is required. 
+
+
+
+# Get the workspace_id if needed and the capacity_id, assuming a workspace is already allocated to it. 
+import sempy.fabric as fabric
+
+# GET THE WORKSPACE ID THAT HAS THE FABRIC CAPACITY METRIC
+# First verify your Capacity workspace ID from the below. We should have the ability to access remote workspaces
+capacity_workspace_check=fabric.list_workspaces()
+
+display(capacity_workspace_check)
+
+
+# Assign the workspace_id of the Microsoft Fabric Capacity Metrics and the capacity_id that is part of the Fabric capacity it can be any size we will just use it for this process before switching back.
+workspace_id="add_your_workspace_ID_here_for_the_capacity_metric_app"
+capacity_id="assign_a_capacity_that_is_not_busy_to_the_workspace"
+
+
+# Create the function to call the API to alter the capacity from Pro to Fabric
+
+def assign_workspace_to_capacity(workspace_id, capacity_id):
+   
+    url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/AssignToCapacity"
+    
+    payload = {
+        "capacityId": capacity_id
+    }
+
+    r = client.post(url, json=payload)
+    if r.status_code == 200:
+        print(f"Workspace {workspace_id} successfully moved to capacity {capacity_id}")
+    else:
+        print(f"Failed to assign workspace: {r.status_code} - {r.text}")
+		
+		
+# Call the function with the parameters
+assign_workspace_to_capacity(workspace_id, capacity_id)
+
+
+
+# Get al the capcity IDs for environment to loop through
+import sempy.fabric as fabric
+
+# GET ALL THE CAPACITY_IDS
+CapacityID_to_Process=fabric.list_workspaces()
+
+display(CapacityID_to_Process)
+
+
+# Remove Null 
+CapacityID_to_Process=CapacityID_to_Process['Capacity Id'].dropna().unique()
+
+# Validation
+print(CapacityID_to_Process)
+
+
+
+import json
+import numpy as np
+
+
+# Convert NumPy array to regular Python list
+clean_list = CapacityID_to_Process.tolist()
+
+# # Clean and Exit value for notebook for Loop
+mssparkutils.notebook.exit(json.dumps(clean_list))		
+
+```
+
+
+
+**PySpark Code Steps: Capacity ID Loop Task:**
+
+**Notebook 2**
+
+This section of Notebook 3 implements logic to update the semantic model's assigned capacity ID, a critical dependency required to retrieve and display metadata for the selected capacity.
+You will need the dataset name for the fabric metric app dataset in addition to the workdspace ID for the capacity metric app. 
+You can use the below to get the dataset ID: 
+```
+import sempy.fabric as fabric
+
+# GET THE DATASET
+# Next, using the FabricWorkspaceId from the above, add it to the FabricWorkspaceId variable to get the fabric capacity dataset 
+Fabric_Capacity_WorkspaceId="fabirc_capacity_workspace_id_here"
+# No need to change in most cases unless you updated prior
+DatasetName="Fabric Capacity Metrics"
+
+get_dataset=fabric.list_datasets(workspace=Fabric_Capacity_WorkspaceId)
+
+display(get_dataset) ## Add the dataset ID to the below code
+```
+
+```
+# Modify the CapacityID to the next capacity on the capacity list
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+
+client = fabric.FabricRestClient()
+
+fabirc_capacity_worspace_id="capacity_app_workspace_id_here"
+fabric_capacity_metric_app_data_set_id="capacity_app_data_set_id_here"
+
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{fabirc_capacity_worspace_id}/datasets/{fabric_capacity_metric_app_data_set_id}/Default.UpdateParameters"
+
+payload = {
+"updateDetails": [
+    {
+        "name": "CapacityID",
+        "newValue": f"{capacity_id_to_extract_data_from}"
+    }
+]
+}
+
+r = client.post(url, json=payload)
+if r.status_code == 200:
+    print(r.status_code, r.text)
+else:
+    print(f"Failed to assign workspace: {r.status_code} - {r.text}")
+    
+    
+```
+
+
+
+
+**PySpark Code Steps: Capacity Metric Specific Capacity Data Extraction ETL to Data Warehouse:**
+
+**Notebook 3**
+
+Each code below will be a different cell in the same Notebook 2
 Getting the Fabric Capacity Workspace ID
 To obtain the Workspace ID for the Fabric Capacity Metrics workspace execute the following command utilizing PySpark within the Spark notebook. Ensure you have identified the Workspace ID of the remote Capacity Metrics App. We are using the workspace ID as there can be some errors if we solely use the workspace name as it can be altered etc.. 
 ```
@@ -173,7 +319,112 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 ```
 
-ℹ️ Make sure to schedule a job that runs the above Python notebook either daily or every 13 days. 
+
+
+**PySpark Code Steps: Capacity ID Loop Task:**
+
+**Notebook 4**
+
+```
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+
+client = fabric.FabricRestClient()
+
+# It is recommended to assign the workspace to a Fabric capacity at runtime, as alternative methods are susceptible to increased variability in operational behavior. 
+# This configuration ensures that capacity remains in its default state until an explicit query or reallocation is required. 
+
+
+
+# Get the workspace_id if needed and the capacity_id, assuming a workspace is already allocated to it. 
+import sempy.fabric as fabric
+
+# GET THE WORKSPACE ID THAT HAS THE FABRIC CAPACITY METRIC
+# First verify your workspace ID from the below. 
+capacity_workspace_check=fabric.list_workspaces()
+
+display(capacity_workspace_check)
+
+
+# Assign the workspace_id back to the default
+workspace_id="capacity_metric_workspace_id_here"
+capacity_id="00000000-0000-0000-0000-000000000000"   # Dont alter as this will set back to Pro capacity
+
+
+# Create the function to call the API to alter the capacity from Fabric to Pro
+
+def assign_workspace_to_capacity(workspace_id, capacity_id):
+   
+    url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/AssignToCapacity"
+    
+    payload = {
+        "capacityId": capacity_id
+    }
+
+    r = client.post(url, json=payload)
+    if r.status_code == 200:
+        print(f"Workspace {workspace_id} successfully moved to capacity {capacity_id}")
+    else:
+        print(f"Failed to assign workspace: {r.status_code} - {r.text}")
+		
+		
+# Call the function with the parameters
+assign_workspace_to_capacity(workspace_id, capacity_id)
+
+```
+
+**Pipeline Integration**
+**Put it all together**
+
+
+To ensure seamless execution, the solution should be structured as follows: each section described above must be implemented in a separate notebook instance, as initiating a new session is necessary to accurately reflect the updated state resulting from API invocations.
+
+![image](https://github.com/user-attachments/assets/d7aa750e-639d-4ca4-9453-aa4dca62e4a1)
+
+
+The following screens depict the pipeline workflow and detail the necessary parameter configurations. Omitting any required parameters may result in job execution failures.
+
+**Activity 1 Notebook:** 
+
+No parameters required besides Notebook 1 selected:
+
+![image](https://github.com/user-attachments/assets/4f289ccc-570f-44ed-84a5-6366d4a3e9d1)
+
+
+**Activity 2 For Each Loop:**
+
+To capture the output value from Notebook 1, utilize the following expression. Ensure that the activity name precisely matches the name of your initial activity, as defined within your environment configuration.
+Ensure that the loop is set to sequential. 
+
+```
+@json(activity('NotebookAdjustCapacitytoFabric').output.result.exitValue)
+```
+
+![image](https://github.com/user-attachments/assets/3bc67529-1780-4ecb-9a13-26049105b323)
+
+
+**Activity 3 Inside For Each Loop Notebook 3:**
+For Notebook 3, which is responsible for updating the dataset capacity ID to ensure comprehensive capacity coverage, incorporate the specified base parameter expression name  `capacity_id_to_extract_data_from`  and value `@item()` within the loop activity. This configuration guarantees that the necessary value is programmatically passed from the Foreach activity into the Notebook, supporting robust and sequential execution across all capacity instances.
+
+![image](https://github.com/user-attachments/assets/4c660758-2d48-43f7-8cd9-bd7ca845327c)
+
+
+**Activity 4 Inside For Each Loop Notebook 4:**
+
+No parameters required besides Notebook 4 selected:
+
+![image](https://github.com/user-attachments/assets/db265eee-d75a-4e83-87c8-2dbe54762696)
+
+
+**Activity 5 Outside For Each Loop Notebook 5:** 
+
+Once processing is complete, the capacity metric application should be programmatically reverted to the Pro capacity setting. It is important to ensure that both "On Fail" and "On Success" dependencies from the ForEach loop are properly linked to the final notebook activity. This approach guarantees that, regardless of execution outcome, the Fabric capacity metric application consistently returns to its default configuration, thereby maintaining operational stability even in the event of capacity changes.
+
+![image](https://github.com/user-attachments/assets/d1b01ea8-1a7d-48d7-874d-84faa4339f74)
+
+
+
+ℹ️ Make sure to schedule a job that runs the above Python notebook daily.  
 This is important because after 14 days, the older data will be purged, as the metrics have a 14-day retention period.
 
 
