@@ -14,6 +14,8 @@ Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > M
 *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
 Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Ensure that  “Pro” is selected which should be the default. The assigned capacity (Pro) remains until the extraction process initiates. This procedure has been automated, ensuring a stable and reliable extraction of Capacity Metrics App data from the semantic model via altering the capacity from Pro to Fabric. This configuration is essential, as failing to use Fabric capacity during extraction may result in permission exceptions. This approach differs from the initial solution, which kept the Capacity Metrics App capacity permanently set to Fabric, a configuration that is no longer necessary. In addition, an iterative loop has been integrated to collect telemetry data from each capacity within the environment, allowing for comprehensive resource utilization analysis.
+![image](https://github.com/user-attachments/assets/e431c2ae-3623-49bc-85e3-ac85abf27aa2)
+
 
 
 *Step3:*
