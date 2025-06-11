@@ -3,6 +3,7 @@
 
 Business continuity and disaster recovery (BCDR) are critical components of a robust enterprise risk management framework. This documentation outlines the essential procedures for implementing and validating your BCDR strategy for Fabric.
 Please note that this guide is not exhaustive, additional sections and detailed best practices will be incorporated in future updates.
+Please be aware that once this configuration is enabled, it will remain active for a minimum of 30 days and cannot be reverted during that period. This ensures proper synchronization and seamless migration to the designated paired region. Additionally, enabling this option will result in increased operational costs.
 
 
 **Steps**
