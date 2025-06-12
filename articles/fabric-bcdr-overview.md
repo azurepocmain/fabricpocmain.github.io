@@ -361,6 +361,8 @@ Ensure the following parameters are configured correctly in the parameter table 
 - **datawarehouse_connection_string**: The connection string for your DR Data Warehouse
 - **fabric_final_destination_dw_name**: The name of your DR Data Warehouse
 Accurate configuration of these parameters will help ensure a smooth and efficient data migration process.
+
+
 ![image](https://github.com/user-attachments/assets/331e787f-9a16-44c3-84a5-a3695681295c)
 
 
