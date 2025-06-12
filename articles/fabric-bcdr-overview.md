@@ -23,7 +23,7 @@ During disaster recovery testing, it is essential to adhere closely to establish
 For illustration, recommended practice may involve using identical service names as the primary environment, with the addition of a "_DR" suffix to distinguish disaster recovery instances. 
 Nonetheless, organizations should align with their internal DR naming standards as appropriate.
 
-**Step 3: Restore Lakehouse Tables**
+# **Step 3: Restore Lakehouse Tables**
 Once disaster recovery has been enabled in Fabric, and both the new capacity and workspace have been provisioned with failover completed, the service restoration process can commence. 
 The initial focus should be on recovering Lakehouse Tables, ensuring that data structures and associated configurations are accurately restored in the secondary environment.
 
