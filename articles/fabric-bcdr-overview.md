@@ -135,8 +135,6 @@ Please note that after restoring your Lakehouse tables, you may observe certain 
 
 
 
-Pelase note that after restoring your lakehosue tables you may see the folloiwng in your environmetn, 
-
 # **Step 4: Restore Lakehouse Files Notebook**
 
 Now we will process Lakehouse Files: 
