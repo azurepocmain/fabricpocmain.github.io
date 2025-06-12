@@ -130,6 +130,8 @@ To configure the notebook for dynamic execution, define two base parameters corr
 
 Please note that after restoring your Lakehouse tables, you may observe certain artifacts or discrepancies within your environment. This behavior is currently okay in our testing, and the SQL endpoint queries for the Lakehouse should remain fully operational. We will provide more guidance to resolve this as we get them. 
 
+![image](https://github.com/user-attachments/assets/b70f375a-ba8f-4438-81c0-7f0c607efab8)
+
 
 
 
