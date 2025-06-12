@@ -111,7 +111,7 @@ for source_lakehouse, dest_lakehouse in paths_pairs:
 It is important to note that the provided script assumes all corresponding Lakehouse instances in the source environment have already been established in the disaster recovery destination. 
 If this alignment is not in place, inconsistencies may arise, potentially resulting in data being copied to incorrect Lakehouse targets. In such cases, the script may require enhancements, such as incorporating logic to match Lakehouse names or dynamically referencing the full path via a path.path.endswith value, to ensure accurate data mapping and prevent operational anomalies.
 
-**Step 3a: Restore Lakehouse Tables Pipeline**
+# **Step 3a: Restore Lakehouse Tables Pipeline**
 
 To streamline operations, consider implementing a pipeline that automatically triggers the provided script. While this pipeline is not strictly required, it facilitates reuse of the script without the need for hardcoded values, thereby enhancing flexibility and maintainability. 
 Alternatively, the script can be executed manually to transfer objects from the primary Lakehouse to the disaster recovery (DR) Lakehouse Tables folder as needed.
