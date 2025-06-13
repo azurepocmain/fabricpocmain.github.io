@@ -23,7 +23,37 @@ During disaster recovery testing, it is essential to adhere closely to establish
 For illustration, recommended practice may involve using identical service names as the primary environment, with the addition of a "_DR" suffix to distinguish disaster recovery instances. 
 Nonetheless, organizations should align with their internal DR naming standards as appropriate.
 
-# **Step 3: Restore Lakehouse Tables**
+
+# **Step 3: Retore items using Fabirc Git intergration**
+Please ensure that Git has been initialized in your primary workspace prior to proceeding. This enables the restoration of items such as notebooks and pipelines through Git integration.
+It is important to avoid restoring resources like Lakehouses and Warehouses, as these should be provisioned natively within the workspace environment rather than via Git.
+The recommended workflow involves creating a new branch from the main branch of your primary workspace repository, either a new project or the same project. From this branch, remove all LakeHouse, EventHouse, and Warehouse resources, as illustrated below, while retaining pipelines, notebooks, and reports, etc. If you encounter a problematic or inaccessible report or item, simply delete it from this branch, refresh your workspace, and attempt the import process again as demonstrated in the following example.
+
+
+![image](https://github.com/user-attachments/assets/2eabd45b-619c-4cb3-91c0-2cff31a0cdf1)
+
+![image](https://github.com/user-attachments/assets/ed4dcf31-cdb5-4a6c-ba46-99b1a954b7a0)
+
+
+Once the specified service items have been removed, navigate to your newly created workspace and access the workspace settings. 
+From there, proceed to the Git integration section to complete the configuration.
+
+![image](https://github.com/user-attachments/assets/ccf00b38-59d3-42ff-b00b-fad0f50bfdef)
+
+Next, establish a connection between your disaster recovery (DR) Git repository and the DR workspace. Navigate to the Git integration, select your repository, and initiate the connect and synchronize operation.
+
+![image](https://github.com/user-attachments/assets/4ee04959-9e94-462f-a4cd-8c8152861c6f)
+
+Proceed to select "Update ALL" within the Git integration settings to synchronize all repository items with your workspace, ensuring a comprehensive update of resources from the linked repository.
+
+![image](https://github.com/user-attachments/assets/c6a6b5cf-9f7d-4af1-9c2f-08be84093a99)
+
+If you encounter exceptions related to missing connections or unsynchronized gateways in reports, return to your repository and remove the problematic item. After deletion, refresh your Fabric source control and initiate the "Update All" process to resynchronize the environment.
+
+![image](https://github.com/user-attachments/assets/1f73d00d-3f6c-4c7f-ba13-262adcf7d1c3)
+
+
+# **Step 4: Restore Lakehouse Tables**
 Once disaster recovery has been enabled in Fabric, and both the new capacity and workspace have been provisioned with failover completed, the service restoration process can commence. 
 The initial focus should be on recovering Lakehouse Tables, ensuring that data structures and associated configurations are accurately restored in the secondary environment.
 
@@ -111,7 +141,7 @@ for source_lakehouse, dest_lakehouse in paths_pairs:
 It is important to note that the provided script assumes all corresponding Lakehouse instances in the source environment have already been established in the disaster recovery destination. 
 If this alignment is not in place, inconsistencies may arise, potentially resulting in data being copied to incorrect Lakehouse targets. In such cases, the script may require enhancements, such as incorporating logic to match Lakehouse names or dynamically referencing the full path via a path.path.endswith value, to ensure accurate data mapping and prevent operational anomalies.
 
-# **Step 3a: Restore Lakehouse Tables Pipeline**
+# **Step 4a: Restore Lakehouse Tables Pipeline**
 
 To streamline operations, consider implementing a pipeline that automatically triggers the provided script. While this pipeline is not strictly required, it facilitates reuse of the script without the need for hardcoded values, thereby enhancing flexibility and maintainability. 
 Alternatively, the script can be executed manually to transfer objects from the primary Lakehouse to the disaster recovery (DR) Lakehouse Tables folder as needed.
@@ -135,7 +165,7 @@ Please note that after restoring your Lakehouse tables, you may observe certain 
 
 
 
-# **Step 4: Restore Lakehouse Files Notebook**
+# **Step 5: Restore Lakehouse Files Notebook**
 
 Now we will process Lakehouse Files: 
 
@@ -208,7 +238,7 @@ for source_lakehouse, dest_lakehouse in paths_pairs:
 ```
 
 
-# **Step 4a: Restore Lakehouse Files Pipeline**
+# **Step 5a: Restore Lakehouse Files Pipeline**
 
 To implement this approach, construct a pipeline analogous to the one described in section 3a. Configure the pipeline and associated notebook parameters in alignment with those outlined in 3a, ensuring both `source` and `destination` parameters are systematically defined and propagated. This setup enables parameterized, automated execution and maintains consistency across environments.
 
@@ -216,7 +246,7 @@ To implement this approach, construct a pipeline analogous to the one described 
 
 
 
-# **Step 5: Restore Data Warehouse Notebook**
+# **Step 6: Restore Data Warehouse Notebook**
 
 The process of restoring a Fabric Data Warehouse involves a specialized workflow, as the underlying data resides in OneLake in Delta Parquet format. Given the presence of multiple files, the data must first be transferred to a Lakehouse environment. From there, a CREATE TABLE AS SELECT (CTAS) command is executed to reconstitute the data within the Data Warehouse. The provided scripts facilitate this operation by systematically handling the data migration one Data Warehouse at a time. This approach requires specification of both the source and target workspaces, as well as the Fabric source Data Warehouse and the target Fabric Lakehouse. Data is migrated from the source Warehouse to the Lakehouse, and subsequently restored into the destination Warehouse, ensuring integrity and consistency throughout the process. Accordingly, the process necessitates provisioning a new Lakehouse instance to serve as the initial landing zone for the migrated data, followed by the deployment of a Disaster Recovery (DR) Data Warehouse to facilitate restoration from the primary environment.
 
@@ -343,7 +373,7 @@ mssparkutils.notebook.exit(warehouse_create_table_list)
 
 
 
-# **Step 5a: Restore Data Warehouse Pipeline**
+# **Step 6a: Restore Data Warehouse Pipeline**
 
 The next phase involves designing a pipeline comprising three core activities, each parameterized for runtime execution. This pipeline will feature a notebook activity, a foreach loop, and a script activity, orchestrated as outlined below to ensure efficient and automated data migration.
 
