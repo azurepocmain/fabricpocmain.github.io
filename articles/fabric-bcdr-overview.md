@@ -54,6 +54,11 @@ If you encounter exceptions related to missing connections or unsynchronized gat
 ![image](https://github.com/user-attachments/assets/1f73d00d-3f6c-4c7f-ba13-262adcf7d1c3)
 
 
+
+![image](https://github.com/user-attachments/assets/cc74a847-61b9-473b-aa09-ee1265b39028)
+
+
+
 # **Step 4: Restore Lakehouse Tables**
 Once disaster recovery has been enabled in Fabric, and both the new capacity and workspace have been provisioned with failover completed, the service restoration process can commence. 
 The initial focus should be on recovering Lakehouse Tables, ensuring that data structures and associated configurations are accurately restored in the secondary environment.
