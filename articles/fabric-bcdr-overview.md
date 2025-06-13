@@ -27,6 +27,7 @@ Nonetheless, organizations should align with their internal DR naming standards 
 # **Step 3: Retore items using Fabirc Git intergration**
 Please ensure that Git has been initialized in your primary workspace prior to proceeding. This enables the restoration of items such as notebooks and pipelines through Git integration.
 It is important to avoid restoring resources like Lakehouses and Warehouses, as these should be provisioned natively within the workspace environment rather than via Git.
+
 The recommended workflow involves creating a new branch from the main branch of your primary workspace repository, either a new project or the same project. From this branch, remove all LakeHouse, EventHouse, and Warehouse resources, as illustrated below, while retaining pipelines, notebooks, and reports, etc. If you encounter a problematic or inaccessible report or item, simply delete it from this branch, refresh your workspace, and attempt the import process again as demonstrated in the following example.
 
 
