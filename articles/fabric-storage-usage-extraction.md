@@ -230,6 +230,59 @@ ORDER BY
 
 
 ```
+
+Alternatively, if multiple workspace names are associated with the same workspace ID, it likely indicates that the workspace name has been updated. This change can impact the accuracy of the SQL statement referenced above.
+The following SQL query is designed to aggregate all workspace names corresponding to a single workspace ID into one column, along with percentage-based aggregations to provide a quantifiable view of these occurrences.
+
+
+```
+WITH DailyStorage AS (
+    SELECT 
+        [Date],
+        SUM([Utilization (GB)]) AS TotalTenantStorageForDay
+    FROM dbo.FabricStorageUage
+    GROUP BY [Date]
+),
+WorkspaceDailyUsage AS (
+    SELECT 
+        WorkspaceId,
+        [Date],
+        SUM([Utilization (GB)]) AS WorkspaceStorageForDay
+    FROM dbo.FabricStorageUage
+    GROUP BY WorkspaceId, [Date]
+),
+WorkspaceNames AS (
+    -- 1) de-duplicate workspace names in the inner query as someone in your org may have updated them
+    SELECT
+      WorkspaceId,
+      STRING_AGG(WorkspaceName, ', ') AS AllWorkspaceNames
+    FROM (
+      SELECT DISTINCT
+        WorkspaceId,
+        WorkspaceName
+      FROM dbo.FabricWorkspaces
+    ) AS dedup
+    GROUP BY WorkspaceId
+)
+SELECT
+    n.AllWorkspaceNames       AS WorkspaceName,
+    w.Date,
+    w.WorkspaceId,
+    w.WorkspaceStorageForDay,
+    d.TotalTenantStorageForDay,
+    (w.WorkspaceStorageForDay  
+       / NULLIF(d.TotalTenantStorageForDay, 0)
+    ) * 100                  AS PercentageUsage
+FROM WorkspaceDailyUsage AS w
+JOIN DailyStorage        AS d ON w.Date        = d.Date
+JOIN WorkspaceNames      AS n ON w.WorkspaceId = n.WorkspaceId
+ORDER BY w.Date, w.WorkspaceId;
+
+```
+
+
+
+
 ![image](https://github.com/user-attachments/assets/eabb6b71-8d52-4a85-a916-a4c983f6130b)
 
 
