@@ -2,10 +2,12 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+  
+- ***6-20-2025***
 
-***6-6-2025***
+- ***6-6-2025***
 
-***3-12-2025***
+- ***3-12-2025***
 
 As organizations deploy Fabric workspace capacity to multiple departments, it becomes imperative to implement tracking mechanisms for accurate inter-departmental billing. 
 The optimal tool for this purpose is Fabric Chargeback: <a href="https://learn.microsoft.com/en-gb/fabric/release-plan/admin-governance#capacity-metrics-chargeback-public-preview" target="_blank">Fabric Chargeback</a>
@@ -256,6 +258,7 @@ spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 #Convert a Pandas DataFrame to a PySpark DataFrame, as the dataframes retrieved from sempy.fabric are initially in Pandas format.
 df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
 df_items_table_spark = spark.createDataFrame(df_items_table)
+capacity_workspace_check_spark= spark.createDataFrame(capacity_workspace_check)   ## Added for FabricWorkspacesList table to only show latest workspace name in the event workspace name has been altered
 ```
 
 Capacity Metrics Usage Inserts Section
@@ -323,6 +326,21 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 ```
 
+
+Leveraging the Fabric workspace list dataset ensures that the environment consistently reflects the most up-to-date workspace nomenclature, thereby maintaining data integrity and alignment with the latest execution cycle.
+```
+# Process Workspace Table FabricWorkspacesList Inserts
+from pyspark.sql.functions import col
+import com.microsoft.spark.fabric
+from com.microsoft.spark.fabric.Constants import Constants  
+
+#⚠️Please note: Always use the initial execution below, as it will be overwritten with each run to ensure that the latest workspace names are reflected!
+# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+capacity_workspace_check_spark.write.mode("overwrite").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspacesList")
+
+
+
+```
 
 
 **PySpark Code Steps: Capacity ID Loop Task:**
@@ -433,11 +451,12 @@ This is important because after 14 days, the older data will be purged, as the m
 
 
 **SQL Code Steps: Fabric Capacity Metrics Percentabe Query:**
+Duplicate workspace names are systematically eliminated by executing a join with the FabricWorkspacesList table, which reliably retrieves the most current workspace names during each execution cycle.
 A percentage output for each day and related workspace will be the output. You can potentially utilize this percentage and divide it by the daily cost via the Azure Portal to implement the chargeback process.
 Update the below table names to reflect your environment.
 ```
 WITH DailyTotal AS (
-    --Calculate total CU usage per day across all workspaces potentially use the percentage to multiple the overall bill cost per owner of workplace
+    --Calculate total CU usage per day across all workspaces potentially use the percentage to multiple the overall bill cost per owner of workspace
     SELECT 
         CAST([Date] AS DATE) AS UsageDate, 
         SUM(sum_CU) AS TotalDailyCU --Total CU for the day no storage 
@@ -453,7 +472,7 @@ WITH DailyTotal AS (
 
 SELECT 
     metics.WorkspaceId, 
-	item.WorkspaceName,
+	wklst.Name as WorkspaceName,
     CAST(metics.[Date] AS DATE) AS UsageDate, 
     SUM(metics.sum_CU) AS WorkspaceTotalCU,  -- Total CU for the workspace
     d.TotalDailyCU,  -- Total CU across all workspaces for the day
@@ -467,9 +486,11 @@ JOIN
     DailyTotal d
 ON 
     CAST(metics.[Date] AS DATE) = d.UsageDate
+JOIN FabricWorkspacesList wklst
+ON upper(wklst.Id)=upper(metics.WorkspaceId)
 	WHERE item.[Billable type] IN ('Billable', 'Both') --Only getting the actual cost
 GROUP BY 
-    metics.WorkspaceId, item.WorkspaceName, CAST(metics.[Date] AS DATE), d.TotalDailyCU
+    metics.WorkspaceId, wklst.Name, CAST(metics.[Date] AS DATE), d.TotalDailyCU
 ORDER BY 
     UsageDate, UsagePercentage DESC;
 ```
