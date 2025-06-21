@@ -210,14 +210,14 @@ WorkspaceDailyUsage AS (
         Date
 )
 SELECT 
-	  wks.Name,
+	  wks.Name as [WorkspaceName],
     w.Date,
     w.WorkspaceId,
     w.WorkspaceStorageForDay,
     d.TotalTenantStorageForDay,
     (w.WorkspaceStorageForDay / NULLIF(d.TotalTenantStorageForDay, 0)) * 100 AS PercentageUsage
 FROM 
-    WorkspaceDailyUsage w  -- New Table removes duplicates
+    WorkspaceDailyUsage w
 JOIN 
     DailyStorage d
 ON 
