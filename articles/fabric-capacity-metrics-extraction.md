@@ -32,11 +32,11 @@ To ensure the API call accurately reflects updated capacity settings, initialize
 Execute the code steps as follows for the three notebooks:
 
 
-**PySpark Code Steps: Fabric Capacity Metrics Extraction:**
+# **PySpark Code Steps: Fabric Capacity Metrics Extraction:**
 
-**PySpark Code Steps: Modify Capacity from Pro to Fabric:**
+# **PySpark Code Steps: Modify Capacity from Pro to Fabric:**
 
-**Notebook 1**
+# **Notebook 1**
 
 For the next step, create a new notebook and consider naming it something like “Capacity Metric Job Capacity Adjustment Notebook1.” Once created, add the script provided below. Be sure to modify the script variables as needed to fit your requirements.
 
