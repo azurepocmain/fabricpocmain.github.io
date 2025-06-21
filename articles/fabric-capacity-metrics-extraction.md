@@ -15,19 +15,19 @@ However, since Fabric Chargeback is currently in public preview, this documentat
 
 **Steps: Fabric Capacity Metrics Extraction**
 
-*Step1:*
+# *Step1:*
 Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > Microsoft Fabric Capacity Metrics and selecting "Get it now". The corresponding link is accessible here:  <a href="learn.microsoft.com/en-us/fabric/enterprise/metrics-app-install?tabs=1st" target="_blank">Install the Microsoft Fabric capacity metrics app</a>
 
-*Step2:*
+# *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
 Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Ensure that  “Pro” is selected which should be the default. The assigned capacity (Pro) remains until the extraction process initiates. This procedure has been automated, ensuring a stable and reliable extraction of Capacity Metrics App data from the semantic model via altering the capacity from Pro to Fabric. This configuration is essential, as failing to use Fabric capacity during extraction may result in permission exceptions. This approach differs from the initial solution, which kept the Capacity Metrics App capacity permanently set to Fabric, a configuration that is no longer necessary. In addition, an iterative loop has been integrated to collect telemetry data from each capacity within the environment, allowing for comprehensive resource utilization analysis.
 ![image](https://github.com/user-attachments/assets/f320cdcf-275c-4598-8d11-be8be7b2a67a)
 
 
-*Step3:*
+# *Step3:*
 Finally, ensure that a Fabric Data Warehouse has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
 
-*Step4:*
+# *Step4:*
 To ensure the API call accurately reflects updated capacity settings, initialize three distinct Spark notebooks utilizing PySpark. Each notebook should execute unique logic below, providing isolated session contexts necessary for the API to recognize capacity modifications. Attempting to combine the initial and final logic within a single script may prevent the session from detecting the newly applied API changes.
 Execute the code steps as follows for the three notebooks:
 
@@ -119,9 +119,9 @@ mssparkutils.notebook.exit(json.dumps(clean_list))
 
 
 
-**PySpark Code Steps: Capacity ID Loop Task:**
+# **PySpark Code Steps: Capacity ID Loop Task:**
 
-**Notebook 2**
+# **Notebook 2**
 
 This section of Notebook 3 implements logic to update the semantic model's assigned capacity ID, a critical dependency required to retrieve and display metadata for the selected capacity.
 You will need the dataset name for the fabric metric app dataset in addition to the workdspace ID for the capacity metric app. 
@@ -173,9 +173,9 @@ else:
 
 
 
-**PySpark Code Steps: Capacity Metric Specific Capacity Data Extraction ETL to Data Warehouse:**
+# **PySpark Code Steps: Capacity Metric Specific Capacity Data Extraction ETL to Data Warehouse:**
 
-**Notebook 3**
+# **Notebook 3**
 
 Each code below will be a different cell in the same Notebook 2
 Getting the Fabric Capacity Workspace ID
@@ -343,9 +343,9 @@ capacity_workspace_check_spark.write.mode("overwrite").option(Constants.Workspac
 ```
 
 
-**PySpark Code Steps: Capacity ID Loop Task:**
+# **PySpark Code Steps: Capacity ID Loop Task:**
 
-**Notebook 4**
+# **Notebook 4**
 
 ```
 import sempy.fabric as fabric
@@ -395,8 +395,8 @@ assign_workspace_to_capacity(workspace_id, capacity_id)
 
 ```
 
-**Pipeline Integration**
-**Put it all together**
+# **Pipeline Integration**
+# **Put it all together**
 
 
 To ensure seamless execution, the solution should be structured as follows: each section described above must be implemented in a separate notebook instance, as initiating a new session is necessary to accurately reflect the updated state resulting from API invocations.
@@ -406,14 +406,14 @@ To ensure seamless execution, the solution should be structured as follows: each
 
 The following screens depict the pipeline workflow and detail the necessary parameter configurations. Omitting any required parameters may result in job execution failures.
 
-**Activity 1 Notebook:** 
+# **Activity 1 Notebook:** 
 
 No parameters required besides Notebook 1 selected:
 
 ![image](https://github.com/user-attachments/assets/4f289ccc-570f-44ed-84a5-6366d4a3e9d1)
 
 
-**Activity 2 For Each Loop:**
+# **Activity 2 For Each Loop:**
 
 To capture the output value from Notebook 1, utilize the following expression. Ensure that the activity name precisely matches the name of your initial activity, as defined within your environment configuration.
 Ensure that the loop is set to sequential. 
@@ -431,14 +431,14 @@ For Notebook 3, which is responsible for updating the dataset capacity ID to ens
 ![image](https://github.com/user-attachments/assets/4c660758-2d48-43f7-8cd9-bd7ca845327c)
 
 
-**Activity 4 Inside For Each Loop Notebook 4:**
+# **Activity 4 Inside For Each Loop Notebook 4:**
 
 No parameters required besides Notebook 4 selected:
 
 ![image](https://github.com/user-attachments/assets/db265eee-d75a-4e83-87c8-2dbe54762696)
 
 
-**Activity 5 Outside For Each Loop Notebook 5:** 
+# **Activity 5 Outside For Each Loop Notebook 5:** 
 
 Once processing is complete, the capacity metric application should be programmatically reverted to the Pro capacity setting. It is important to ensure that both "On Fail" and "On Success" dependencies from the ForEach loop are properly linked to the final notebook activity. This approach guarantees that, regardless of execution outcome, the Fabric capacity metric application consistently returns to its default configuration, thereby maintaining operational stability even in the event of capacity changes.
 
@@ -450,7 +450,7 @@ Once processing is complete, the capacity metric application should be programma
 This is important because after 14 days, the older data will be purged, as the metrics have a 14-day retention period.
 
 
-**SQL Code Steps: Fabric Capacity Metrics Percentabe Query:**
+# **SQL Code Steps: Fabric Capacity Metrics Percentabe Query:**
 Duplicate workspace names are systematically eliminated by executing a join with the FabricWorkspacesList table, which reliably retrieves the most current workspace names during each execution cycle.
 A percentage output for each day and related workspace will be the output. You can potentially utilize this percentage and divide it by the daily cost via the Azure Portal to implement the chargeback process.
 Update the below table names to reflect your environment.
