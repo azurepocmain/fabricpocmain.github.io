@@ -154,6 +154,7 @@ This section is very important, as the section without comments will only be exe
 Afterwards, the section below marked with ⬇️ should be executed for all subsequent runs.
 This approach ensures that there are no duplicate records and only new inserts are added to the table.
 Please adjust the table name if needed, but all other parameters should maintain their respective variables.
+This procedure has been further optimized through the integration of the FabricWorkspacesList process, as detailed in the capacity metrics extraction documentation. For scenarios requiring traceability of Workspace name changes, a join with the table provided below enables comprehensive visibility into these modifications.
 ```
 # Process Workspace Table Inserts
 from pyspark.sql.functions import col
@@ -186,7 +187,7 @@ This is important because after 14 days, the older data will be purged, as the m
 
 **SQL Code Steps: Fabric Storage Usage Percentabe Query:**
 A percentage output for each day and related workspace will be the output. You can potentially utilize this percentage and divide it by the daily cost via the Azure Portal to implement the chargeback process.
-Update the below table names to reflect your environment. Please note that, depending on your billing configuration, you may need to segment the query by capacity usage rather than aggregating it for the entire tenant.
+Update the below table names to reflect your environment. Please note that, depending on your billing configuration, you may need to segment the query by capacity usage rather than aggregating it for the entire tenant. Please be advised that this query has been optimized to exclusively return the most recent workspace name, ensuring accurate identification even in cases where name changes have occurred. This optimization is implemented by leveraging the FabricWorkspacesList table, as sourced from the capacity metrics extraction documentation.
 ```
 WITH DailyStorage AS (
     SELECT 
@@ -209,21 +210,21 @@ WorkspaceDailyUsage AS (
         Date
 )
 SELECT 
-	  wks.WorkspaceName,
+	  wks.Name,
     w.Date,
     w.WorkspaceId,
     w.WorkspaceStorageForDay,
     d.TotalTenantStorageForDay,
     (w.WorkspaceStorageForDay / NULLIF(d.TotalTenantStorageForDay, 0)) * 100 AS PercentageUsage
 FROM 
-    WorkspaceDailyUsage w
+    WorkspaceDailyUsage w  -- New Table removes duplicates
 JOIN 
     DailyStorage d
 ON 
     w.Date = d.Date
-JOIN [dbo].[FabricWorkspaces] wks
+JOIN [dbo].[FabricWorkspacesList] wks
 ON 
-	wks.WorkspaceId=w.WorkspaceId
+	upper(wks.Id)=upper(w.WorkspaceId)
 ORDER BY 
     w.Date, 
     w.WorkspaceId;
