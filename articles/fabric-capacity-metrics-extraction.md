@@ -501,6 +501,7 @@ ORDER BY
 In addition, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / UsagePercentage = DAY COST PER DEPARTMENT***
 
 
+# Pipeline API Call
 To initiate the above pipeline via an API using a service principal, you can utilize code structured similarly to the following example:
 
 ```
