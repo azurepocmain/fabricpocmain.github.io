@@ -2,6 +2,7 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- ***6-24-2025***
   
 - ***6-20-2025***
 
@@ -497,7 +498,88 @@ ORDER BY
 ![image](https://github.com/user-attachments/assets/6b40ab34-33fd-4ff7-a867-097bce2d73a2)
 
 
-Lastly, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / UsagePercentage = DAY COST PER DEPARTMENT***
+In addition, consider utilizing the following formula for calculating departmental costs: ***AZURE COST FOR DAY / UsagePercentage = DAY COST PER DEPARTMENT***
+
+
+To initiate the above pipeline via an API using a service principal, you can utilize code structured similarly to the following example:
+
+```
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def get_fabric_token() -> str:
+    """Obtain an Azure AD access token for Microsoft Fabric API."""
+    tenant_id = os.getenv("TENANT_ID")
+    client_id = os.getenv("CLIENT_ID")
+    client_secret = os.getenv("CLIENT_SECRET")
+
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+    payload = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials",
+        "scope": "https://api.fabric.microsoft.com/.default"
+    }
+
+    try:
+        response = requests.post(token_url, data=payload)
+        response.raise_for_status()
+        return response.json()["access_token"]
+    except requests.RequestException as e:
+        raise Exception(f"Failed to get token: {e}")
+
+
+def start_pipeline(workspace_id: str, pipeline_id: str, run_name: str = "Run via Python"):
+    """Start a Fabric pipeline by workspace and pipeline item ID."""
+    token = get_fabric_token()
+
+    url = (
+        f"https://api.fabric.microsoft.com/v1/workspaces/"
+        f"{workspace_id}/items/{pipeline_id}/jobs/instances?jobType=Pipeline"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "runName": run_name
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        if response.status_code in [200, 201, 202]:
+            print(f"Pipeline triggered successfully: {run_name}")
+            #return response.json()
+        else:
+            raise Exception(f"Unexpected status code: {response.status_code}")
+
+    except requests.RequestException as e:
+        raise Exception(f"Failed to start pipeline: {e}")
+
+
+if __name__ == "__main__":
+    #My env parameters for the pipeline
+    workspace_id = os.getenv("FABRIC_WORKSPACE_ID")
+    pipeline_id = os.getenv("FABRIC_PIPELINE_ID")    ## Pipeline to run from the above code. 
+    run_name = "Triggered from most recent working script"
+
+    if not workspace_id or not pipeline_id:
+        raise Exception("Workspace ID and Pipeline ID must be set in .env")
+
+    result = start_pipeline(workspace_id, pipeline_id, run_name)
+    #print("Run ID:", result.get("id"))
+
+```
+
 
 ***DISCLAIMER: Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment unless thorough testing has been conducted by the app and database teams. THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. We grant You a nonexclusive, royalty-free right to use and modify the Sample Code and to reproduce and distribute the object code form of the Sample Code, provided that. You agree: (i) to not use Our name, logo, or trademarks to market Your software product in which the Sample Code is embedded; (ii) to include a valid copyright notice on Your software product in which the Sample Code is embedded; and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and against any claims or lawsuits, including attorneys fees, that arise or result from the use or distribution or use of the Sample Code.***
 
