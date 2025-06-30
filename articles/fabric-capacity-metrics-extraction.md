@@ -2,6 +2,8 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- ***6-30-2025***
+
 - ***6-24-2025***
   
 - ***6-20-2025***
@@ -247,6 +249,9 @@ df_metrics_by_item_day_table = fabric.read_table(workspace=Fabric_Capacity_Works
 
 # Primary Table for Worksapce Items
 df_items_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
+
+# Get Capacity Units Detail to Track Capacity Size
+df_capacity_units_details= fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="CUDetail")
 ```
 
 
@@ -260,6 +265,7 @@ spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
 df_items_table_spark = spark.createDataFrame(df_items_table)
 capacity_workspace_check_spark= spark.createDataFrame(capacity_workspace_check)   ## Added for FabricWorkspacesList table to only show latest workspace name in the event workspace name has been altered
+df_capacity_units_details_spark= spark.createDataFrame(df_capacity_units_details) # Added to track capacity size
 ```
 
 Capacity Metrics Usage Inserts Section
@@ -342,6 +348,38 @@ capacity_workspace_check_spark.write.mode("overwrite").option(Constants.Workspac
 
 
 ```
+
+This section provides detailed tracking of the capacity allocation, enabling more precise calculations and management of capacity size.
+
+```
+# Process Capacity Metrics Inserts
+from pyspark.sql.functions import col
+import com.microsoft.spark.fabric
+from com.microsoft.spark.fabric.Constants import Constants  
+
+#⚠️ Warning:** THIS IS IMPORTANT.
+#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+df_capacity_units_details_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+
+# #⚠️ Warning:** THIS IS IMPORTANT.
+# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
+# # Delta Section 
+# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+# comparison_columns = ["WindowStartTime", "StartOfHour", "WindowEndTime", "Start of Hour", "SKU" ]  #Using following columns as a unique key for  join
+
+# #Step 1: Read existing data from the Fabric Warehouse
+# df_current_capacity_units_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+
+
+# #Step 2: Identify new records using left_anti on multiple columns above
+# df_new_capacity_units_insert = df_capacity_units_details_spark.join(df_current_capacity_units_table, comparison_columns, "left_anti")
+
+# #Step 3: Append only new records to Fabric Warehouse for each invocation
+# df_new_capacity_units_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+
+```
+
 
 
 # **PySpark Code Steps: Capacity ID Loop Task:**
