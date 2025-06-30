@@ -2,9 +2,12 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 In certain operational scenarios, it may be necessary to temporarily pause a Fabric Capacity. During this pause, the database mirroring process halts, preventing the capture of changes from the source system. 
-To resume functionality, the mirroring process must be re-initiated by stopping and restarting it. This can become a cumbersome task for organizations managing multiple capacities or extensive database mirroring setups. 
+To resume functionality, the mirroring process must be re-initiated by stopping and restarting it. Alternatively, you can select "Apply Changes" in the "Configure replication" section under the database mirroring item to proceed with the update.
+This can become a cumbersome task for organizations managing multiple capacities or extensive database mirroring setups. 
 This document outlines a solution to automate this process using Azure Monitor in conjunction with Azure Automation, thereby streamlining operations and reducing manual intervention.
-It is important to note that the signal utilized here differs from when a Fabric Capacity is scaled to an alternate capacity size. In that case, it is imperative to apply the database mirroring deltas seamlessly without necessitating the cessation or reinitialization of the process.
+It is important to note that the signal utilized here differs from when a Fabric Capacity is scaled to an alternate capacity size. In that case, the new functionalites require no intervention as data will resume replication. For more details on the different differnet behaviors data mirroring can take during a specific capacity state, please visit the following link: 
+<a href="https://learn.microsoft.com/en-us/fabric/database/mirrored-database/troubleshooting#changes-to-fabric-capacity" target="_blank">Changes To Fabric Capacity For Fabric Mirrored Databases</a>
+
 
 _______________________________________________________________________________________
 
