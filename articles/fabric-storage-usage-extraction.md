@@ -150,6 +150,8 @@ df_storage_usage_data_spark.write.mode("append").option(Constants.WorkspaceId, F
 
 
 Process Workspace Table Inserts Section
+*⚠️ DO NOT RUN THIS SECTION AT ALL IF YOU ALREADY HAVE THIS RUNNING IN THE CAPACITY METRIC PIPELINE!  
+** This is the same extraction and does not need to be run twice. 
 This section is very important, as the section without comments will only be executed the first time.
 Afterwards, the section below marked with ⬇️ should be executed for all subsequent runs.
 This approach ensures that there are no duplicate records and only new inserts are added to the table.
@@ -157,28 +159,66 @@ Please adjust the table name if needed, but all other parameters should maintain
 This procedure has been further optimized through the integration of the FabricWorkspacesList process, as detailed in the capacity metrics extraction documentation. For scenarios requiring traceability of Workspace name changes, a join with the table provided below enables comprehensive visibility into these modifications.
 ```
 # Process Workspace Table Inserts
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, lit, current_timestamp
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-#⚠️ Warning:** THIS IS IMPORTANT.
-#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
-# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
-
-# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
-# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-# comparison_columns = ["WorkspaceId", "WorkspaceKey", "WorkspaceName"]  #Using following columns as a unique key for  join
-
-# #Step 1: Read existing data from the Fabric Warehouse
-# df_current_workspace_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces") # Update Table Name as needed
+# #⚠️ Warning:** THIS IS IMPORTANT.
+# #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+# # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+#df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
 
 
-# #Step 2: Identify new records using left_anti on multiple columns above
-# df_new_workspace_insert = df_workspace_data_spark.join(df_current_workspace_table, comparison_columns, "left_anti")
+# # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+# all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
 
-# #Step 3: Append only new records to Fabric Warehouse for each invocation
-# df_new_workspace_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces") # Update Table Name as needed
+
+# # 1) Read current FabricWorkspaces table
+# df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
+#          .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+#          .select(*all_cols)
+# )
+
+# # 2) Select new incoming data
+# df_new = df_workspace_data_spark.select(*all_cols)
+
+# # 3) Identify "already existing" exact matches (no change)
+# df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
+
+# # 4) Identify rows needing deactivation (ID+Key match but Name changed)
+# df_to_deactivate = (
+#     df_current.alias("curr")
+#         .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
+#         .filter(
+#             (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
+#             (col("curr.WorkspaceProvisionState") != lit("Inactive"))
+#         )
+#         .select("curr.*")
+#         .withColumn("WorkspaceProvisionState", lit("Inactive"))
+
+# )
+
+
+# # 5) Identify *truly new* rows (not already in full table)
+# df_new_only = (
+#     df_new.alias("new")
+#         .join(df_current.alias("curr"), on=all_cols, how="left_anti")
+# )
+
+
+# # 6) Combine: rows to deactivate + truly new rows
+# df_to_insert = df_to_deactivate.unionByName(df_new_only)
+
+# # 7) Only write if there’s anything to insert
+# if df_to_insert.count() > 0:
+#     df_to_insert.write \
+#         .mode("append") \
+#         .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
+#         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+# else:
+#     print("✅ No changes needed — nothing inserted.")
+
+
 ```
 
 ℹ️ Make sure to schedule a job that runs the above Python notebook daily. 
@@ -186,8 +226,11 @@ This is important because after 14 days, the older data will be purged, as the m
 
 
 **SQL Code Steps: Fabric Storage Usage Percentabe Query:**
-A percentage output for each day and related workspace will be the output. You can potentially utilize this percentage and divide it by the daily cost via the Azure Portal to implement the chargeback process.
-Update the below table names to reflect your environment. Please note that, depending on your billing configuration, you may need to segment the query by capacity usage rather than aggregating it for the entire tenant. Please be advised that this query has been optimized to exclusively return the most recent workspace name, ensuring accurate identification even in cases where name changes have occurred. This optimization is implemented by leveraging the FabricWorkspacesList table, as sourced from the capacity metrics extraction documentation.
+
+If multiple workspace names are associated with the same workspace ID, it likely indicates that the workspace name has been updated. This change can impact the accuracy of the SQL statement referenced above.
+The following SQL query is designed to aggregate all workspace names corresponding to a single workspace ID into one column, along with percentage-based aggregations to provide a quantifiable view of these occurrences.
+
+
 ```
 WITH DailyStorage AS (
     SELECT 
@@ -210,7 +253,7 @@ WorkspaceDailyUsage AS (
         Date
 )
 SELECT 
-	  wks.Name as [WorkspaceName],
+	  wks.WorkspaceName ,
     w.Date,
     w.WorkspaceId,
     w.WorkspaceStorageForDay,
@@ -222,62 +265,13 @@ JOIN
     DailyStorage d
 ON 
     w.Date = d.Date
-JOIN [dbo].[FabricWorkspacesList] wks
+JOIN [dbo].[FabricWorkspaces] wks
 ON 
-	upper(wks.Id)=upper(w.WorkspaceId)
+	upper(wks.WorkspaceId)=upper(w.WorkspaceId)
+    where wks.WorkspaceProvisionState='Active'  --Only Active Workspaces to remove duplicate entries 
 ORDER BY 
     w.Date, 
     w.WorkspaceId;
-
-
-```
-
-Alternatively, if multiple workspace names are associated with the same workspace ID, it likely indicates that the workspace name has been updated. This change can impact the accuracy of the SQL statement referenced above.
-The following SQL query is designed to aggregate all workspace names corresponding to a single workspace ID into one column, along with percentage-based aggregations to provide a quantifiable view of these occurrences.
-
-
-```
-WITH DailyStorage AS (
-    SELECT 
-        [Date],
-        SUM([Utilization (GB)]) AS TotalTenantStorageForDay
-    FROM dbo.FabricStorageUage
-    GROUP BY [Date]
-),
-WorkspaceDailyUsage AS (
-    SELECT 
-        WorkspaceId,
-        [Date],
-        SUM([Utilization (GB)]) AS WorkspaceStorageForDay
-    FROM dbo.FabricStorageUage
-    GROUP BY WorkspaceId, [Date]
-),
-WorkspaceNames AS (
-    -- 1) de-duplicate workspace names in the inner query as someone in your org may have updated them
-    SELECT
-      WorkspaceId,
-      STRING_AGG(WorkspaceName, ', ') AS AllWorkspaceNames
-    FROM (
-      SELECT DISTINCT
-        WorkspaceId,
-        WorkspaceName
-      FROM dbo.FabricWorkspaces
-    ) AS dedup
-    GROUP BY WorkspaceId
-)
-SELECT
-    n.AllWorkspaceNames       AS WorkspaceName,
-    w.Date,
-    w.WorkspaceId,
-    w.WorkspaceStorageForDay,
-    d.TotalTenantStorageForDay,
-    (w.WorkspaceStorageForDay  
-       / NULLIF(d.TotalTenantStorageForDay, 0)
-    ) * 100                  AS PercentageUsage
-FROM WorkspaceDailyUsage AS w
-JOIN DailyStorage        AS d ON w.Date        = d.Date
-JOIN WorkspaceNames      AS n ON w.WorkspaceId = n.WorkspaceId
-ORDER BY w.Date, w.WorkspaceId;
 
 ```
 
