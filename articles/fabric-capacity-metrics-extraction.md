@@ -2,6 +2,8 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- ***7-8-2025***
+
 - ***6-30-2025***
 
 - ***6-24-2025***
@@ -250,6 +252,9 @@ df_metrics_by_item_day_table = fabric.read_table(workspace=Fabric_Capacity_Works
 # Primary Table for Worksapce Items
 df_items_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
 
+# Primary Table for Worksapce List
+df_workspace_data = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Workspaces")
+
 # Get Capacity Units Detail to Track Capacity Size
 df_capacity_units_details= fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="CUDetail")
 ```
@@ -264,7 +269,7 @@ spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 #Convert a Pandas DataFrame to a PySpark DataFrame, as the dataframes retrieved from sempy.fabric are initially in Pandas format.
 df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
 df_items_table_spark = spark.createDataFrame(df_items_table)
-capacity_workspace_check_spark= spark.createDataFrame(capacity_workspace_check)   ## Added for FabricWorkspacesList table to only show latest workspace name in the event workspace name has been altered
+df_workspace_data_spark = spark.createDataFrame(df_workspace_data)   ## Added for FabricWorkspaces table to show active workspace flags in the event workspace name has been altered
 df_capacity_units_details_spark= spark.createDataFrame(df_capacity_units_details) # Added to track capacity size
 ```
 
@@ -334,20 +339,81 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 ```
 
 
-Leveraging the Fabric workspace list dataset ensures that the environment consistently reflects the most up-to-date workspace nomenclature, thereby maintaining data integrity and alignment with the latest execution cycle.
+Leveraging the Fabric workspace table semantic model ensures that the environment consistently reflects the most up-to-date workspace nomenclature, thereby maintaining data integrity and alignment with the latest execution cycle.
 ```
-# Process Workspace Table FabricWorkspacesList Inserts
-from pyspark.sql.functions import col
+# Process Workspace Table Inserts
+from pyspark.sql.functions import col, lit, current_timestamp
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-#⚠️Please note: Always use the initial execution below, as it will be overwritten with each run to ensure that the latest workspace names are reflected!
-# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-capacity_workspace_check_spark.write.mode("overwrite").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspacesList")
+# #⚠️ Warning:** THIS IS IMPORTANT.
+# #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+# # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
 
+
+# # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+# all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
+
+
+# # 1) Read current FabricWorkspaces table
+# df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
+#          .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+#          .select(*all_cols)
+# )
+
+# # 2) Select new incoming data
+# df_new = df_workspace_data_spark.select(*all_cols)
+
+# # 3) Identify "already existing" exact matches (no change)
+# df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
+
+# # 4) Identify rows needing deactivation (ID+Key match but Name changed)
+# df_to_deactivate = (
+#     df_current.alias("curr")
+#         .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
+#         .filter(
+#             (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
+#             (col("curr.WorkspaceProvisionState") != lit("Inactive"))
+#         )
+#         .select("curr.*")
+#         .withColumn("WorkspaceProvisionState", lit("Inactive"))
+
+# )
+
+
+# # 5) Identify *truly new* rows (not already in full table)
+# df_new_only = (
+#     df_new.alias("new")
+#         .join(df_current.alias("curr"), on=all_cols, how="left_anti")
+# )
+
+
+# # 6) Combine: rows to deactivate + truly new rows
+# df_to_insert = df_to_deactivate.unionByName(df_new_only)
+
+# # 7) Only write if there’s anything to insert
+# if df_to_insert.count() > 0:
+#     df_to_insert.write \
+#         .mode("append") \
+#         .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
+#         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+# else:
+#     print("✅ No changes needed — nothing inserted.")
 
 
 ```
+
+⚠️ Please note that if you already have data stored in the table, you should run this update script to ensure that the new workspace data conforms to the correct active naming convention.
+
+```
+--Fabric DW table update IF needed one time script to update all records: 
+update FabricWorkspaces set WorkspaceProvisionState = 'Inactive'
+
+```
+
+
+
 
 This section provides detailed tracking of the capacity allocation, enabling more precise calculations and management of capacity size.
 
@@ -511,7 +577,7 @@ WITH DailyTotal AS (
 
 SELECT 
     metics.WorkspaceId, 
-	wklst.Name as WorkspaceName,
+	wklst.WorkspaceName,
     CAST(metics.[Date] AS DATE) AS UsageDate, 
     SUM(metics.sum_CU) AS WorkspaceTotalCU,  -- Total CU for the workspace
     d.TotalDailyCU,  -- Total CU across all workspaces for the day
@@ -525,11 +591,12 @@ JOIN
     DailyTotal d
 ON 
     CAST(metics.[Date] AS DATE) = d.UsageDate
-JOIN FabricWorkspacesList wklst
-ON upper(wklst.Id)=upper(metics.WorkspaceId)
+JOIN FabricWorkspaces wklst
+ON upper(wklst.WorkspaceId)=upper(metics.WorkspaceId)
 	WHERE item.[Billable type] IN ('Billable', 'Both') --Only getting the actual cost
+    AND wklst.WorkspaceProvisionState='Active'  --Only Active Workspaces to remove duplicate entries 
 GROUP BY 
-    metics.WorkspaceId, wklst.Name, CAST(metics.[Date] AS DATE), d.TotalDailyCU
+    metics.WorkspaceId, wklst.WorkspaceName, CAST(metics.[Date] AS DATE), d.TotalDailyCU
 ORDER BY 
     UsageDate, UsagePercentage DESC;
 ```
