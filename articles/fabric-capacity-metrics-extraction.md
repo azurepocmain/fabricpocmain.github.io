@@ -340,12 +340,12 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 ```
 
-
+⚠️ Warning ONLY RUN THIS ONCE IF YOU ALREADY HAVE DATA IN THE TABLE. THIS WILL NEVER BE RUN AGAIN! 
 ⚠️ Please note that if you already have data stored in the table, you should run this update script to ensure that the new workspace data conforms to the correct active naming convention.
 
 ```
 --Fabric DW table update IF needed one time script to update all records: 
-update FabricWorkspaces set WorkspaceProvisionState = 'Inactive'
+update FabricWorkspaces set WorkspaceProvisionState = 'Inactive' where WorkspaceProvisionState ='Active'
 
 ```
 
