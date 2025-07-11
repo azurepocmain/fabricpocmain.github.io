@@ -145,7 +145,7 @@ def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_nam
             db_id = db.get("id")
             print(f"Restarting mirroring for DB: {db_id}")
             control_mirroring(workspace_id, db_id, "stop", fabric_token)
-            time.sleep(45)
+            time.sleep(120)  ## provide more time for larger dbs
             control_mirroring(workspace_id, db_id, "start", fabric_token)
 
 
