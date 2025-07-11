@@ -339,6 +339,15 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 ```
 
 
+⚠️ Please note that if you already have data stored in the table, you should run this update script to ensure that the new workspace data conforms to the correct active naming convention.
+
+```
+--Fabric DW table update IF needed one time script to update all records: 
+update FabricWorkspaces set WorkspaceProvisionState = 'Inactive'
+
+```
+
+
 Leveraging the Fabric workspace table semantic model ensures that the environment consistently reflects the most up-to-date workspace nomenclature, thereby maintaining data integrity and alignment with the latest execution cycle.
 ```
 # Process Workspace Table Inserts
@@ -349,68 +358,62 @@ from com.microsoft.spark.fabric.Constants import Constants
 # #⚠️ Warning:** THIS IS IMPORTANT.
 # #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
 # # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+#df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
 
 
-# # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
-# all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
+# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
 
 
-# # 1) Read current FabricWorkspaces table
-# df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
-#          .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
-#          .select(*all_cols)
-# )
+# 1) Read current FabricWorkspaces table
+df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
+         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+         .select(*all_cols)
+)
 
-# # 2) Select new incoming data
-# df_new = df_workspace_data_spark.select(*all_cols)
+# 2) Select new incoming data
+df_new = df_workspace_data_spark.select(*all_cols)
 
-# # 3) Identify "already existing" exact matches (no change)
-# df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
+# 3) Identify "already existing" exact matches (no change)
+df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
 
-# # 4) Identify rows needing deactivation (ID+Key match but Name changed)
-# df_to_deactivate = (
-#     df_current.alias("curr")
-#         .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
-#         .filter(
-#             (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
-#             (col("curr.WorkspaceProvisionState") != lit("Inactive"))
-#         )
-#         .select("curr.*")
-#         .withColumn("WorkspaceProvisionState", lit("Inactive"))
+# 4) Identify rows needing deactivation (ID+Key match but Name changed)
+df_to_deactivate = (
+    df_current.alias("curr")
+        .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
+        .filter(
+            (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
+            (col("curr.WorkspaceProvisionState") != lit("Inactive"))
+        )
+        .select("curr.*")
+        .withColumn("WorkspaceProvisionState", lit("Inactive"))
 
-# )
-
-
-# # 5) Identify *truly new* rows (not already in full table)
-# df_new_only = (
-#     df_new.alias("new")
-#         .join(df_current.alias("curr"), on=all_cols, how="left_anti")
-# )
+)
 
 
-# # 6) Combine: rows to deactivate + truly new rows
-# df_to_insert = df_to_deactivate.unionByName(df_new_only)
+# 5) Identify *truly new* rows (not already in full table)
+df_new_only = (
+    df_new.alias("new")
+        .join(df_current.alias("curr"), on=all_cols, how="left_anti")
+)
 
-# # 7) Only write if there’s anything to insert
-# if df_to_insert.count() > 0:
-#     df_to_insert.write \
-#         .mode("append") \
-#         .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
-#         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
-# else:
-#     print("✅ No changes needed — nothing inserted.")
+
+# 6) Combine: rows to deactivate + truly new rows
+df_to_insert = df_to_deactivate.unionByName(df_new_only)
+
+# 7) Only write if there’s anything to insert
+if df_to_insert.count() > 0:
+    df_to_insert.write \
+        .mode("append") \
+        .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
+        .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+else:
+    print("✅ No changes needed — nothing inserted.")
 
 
 ```
 
-⚠️ Please note that if you already have data stored in the table, you should run this update script to ensure that the new workspace data conforms to the correct active naming convention.
 
-```
---Fabric DW table update IF needed one time script to update all records: 
-update FabricWorkspaces set WorkspaceProvisionState = 'Inactive'
-
-```
 
 
 
