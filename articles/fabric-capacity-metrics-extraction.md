@@ -351,6 +351,7 @@ df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWa
 
 
 Leveraging the Fabric workspace table semantic model ensures that the environment consistently reflects the most up-to-date workspace nomenclature, thereby maintaining data integrity and alignment with the latest execution cycle.
+⚠️ Please note that the first section has been commented out. 
 ```
 # Process Workspace Table Inserts
 from pyspark.sql.functions import col, lit, current_timestamp
