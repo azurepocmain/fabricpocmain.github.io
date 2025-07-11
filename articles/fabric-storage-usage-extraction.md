@@ -149,6 +149,16 @@ df_storage_usage_data_spark.write.mode("append").option(Constants.WorkspaceId, F
 ```
 
 
+⚠️ Please note that if you already have data stored in the table, you should run this update script to ensure that the new workspace data conforms to the correct active naming convention.
+Please note that this command is already in the capacity metrics extractions section so there is no need to run the below again. 
+
+```
+--Fabric DW table update IF needed one time script to update all records: 
+--update FabricWorkspaces set WorkspaceProvisionState = 'Inactive' where WorkspaceProvisionState ='Active'
+
+```
+
+
 Process Workspace Table Inserts Section
 *⚠️ DO NOT RUN THIS SECTION AT ALL IF YOU ALREADY HAVE THIS RUNNING IN THE CAPACITY METRIC PIPELINE!  
 ** This is the same extraction and does not need to be run twice. 
