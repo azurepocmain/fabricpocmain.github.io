@@ -2,6 +2,8 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- ***8-6-2025***
+
 - ***7-11-2025***
 
 - ***7-8-2025***
@@ -211,12 +213,15 @@ import sempy.fabric as fabric
 Fabric_Capacity_WorkspaceId="ADD_THE_ABOVE_FABRIC_CAPACITY_WORKSPACE_ID_HERE"
 # No need to change in most cases unless you updated prior
 DatasetName="Fabric Capacity Metrics"
+DatasetId="Dataset Id"    # Getting Dataset ID info 
 
-get_dataset=fabric.list_datasets(workspace=Fabric_Capacity_WorkspaceId)
+get_dataset=fabric.list_datasets(workspace=Fabric_Capacity_WorkspaceId, mode="rest")   # Added mode argument in light of new app change error
 get_dataset = get_dataset.loc[get_dataset['Dataset Name'] == DatasetName]
+get_dataset_id=get_dataset['Dataset Id'].values[0] if not get_dataset.empty else None     # Getting dataset id for the API call now
 # Get the column value without the column name
 get_dataset = get_dataset['Dataset Name'].values[0]
 display(get_dataset)
+display(get_dataset_id)
 ```
 
 We need to get the Fabric Data Warehouse Name,  ID and the Workspace ID where the Warehouse resides, as we will store the data in that table.
@@ -242,38 +247,360 @@ FabricWarehouseID="FABRIC_DW_RESOURCE_ID"
 FabricWarehouseName="FARBIC_WAREHOUSE_NAME"
 ```
 
-We are extracting the actual data from the dataset to store the values in the corresponding variables. 
+We are extracting the actual data from the dataset to store the values in the corresponding variables. This section was broken with the new Capacity method app update when using the python sempy read_table function and has been updated to use the API instead in light of the app change. 
 ```
+# Get Metrics
 import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+import pandas as pd
 
-# Execute the export of data from the two semantic model objects. This operation should be scheduled either on a daily basis or at an interval of every 13 days.
-# This procedure will ensure that the 14-day data retention window is rigorously maintained.
-# Primary Table for CU Consumption
-df_metrics_by_item_day_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="MetricsByItemandDay")
+client = fabric.FabricRestClient()
+workspace_id =  Fabric_Capacity_WorkspaceId
+dataset_id = get_dataset_id
 
-# Primary Table for Worksapce Items
-df_items_table = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Items")
 
-# Primary Table for Worksapce List
-df_workspace_data = fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="Workspaces")
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/executeQueries"
 
-# Get Capacity Units Detail to Track Capacity Size
-df_capacity_units_details= fabric.read_table(workspace=Fabric_Capacity_WorkspaceId, dataset=get_dataset, table="CUDetail")
+dax_query = {
+    "queries": [{
+        "query": "EVALUATE 'Metrics By Item and Day'"
+    }],
+    "serializerSettings": {"includeNulls": True}
+}
+
+headers = {
+    "Content-Type": "application/json",
+
+}
+
+rows = []
+continuation_token = None
+
+while True:
+    query_payload = dax_query.copy()
+    if continuation_token:
+        query_payload["continuationToken"] = continuation_token
+
+    resp = client.post(url, headers=headers, json=query_payload)
+    result = resp.json()
+
+    # Parse rows
+    new_rows = result['results'][0]['tables'][0]['rows']
+    rows.extend(new_rows)
+
+    # Check for next page
+    continuation_token = result['results'][0].get('continuationToken')
+    if not continuation_token:
+        break
+
+df_metrics_by_item_day_table = pd.DataFrame(rows)
+
 ```
+
+```
+#Get Items
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+import pandas as pd
+
+client = fabric.FabricRestClient()
+workspace_id =  Fabric_Capacity_WorkspaceId
+dataset_id = get_dataset_id
+
+
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/executeQueries"
+
+dax_query = {
+    "queries": [{
+        "query": "EVALUATE 'Items'"
+    }],
+    "serializerSettings": {"includeNulls": True}
+}
+
+headers = {
+    "Content-Type": "application/json",
+
+}
+
+rows = []
+continuation_token = None
+
+while True:
+    query_payload = dax_query.copy()
+    if continuation_token:
+        query_payload["continuationToken"] = continuation_token
+
+    resp = client.post(url, headers=headers, json=query_payload)
+    result = resp.json()
+
+    # Parse rows
+    new_rows = result['results'][0]['tables'][0]['rows']
+    rows.extend(new_rows)
+
+    # Check for next page
+    continuation_token = result['results'][0].get('continuationToken')
+    if not continuation_token:
+        break
+
+df_items_table = pd.DataFrame(rows)
+
+```
+
+```
+# Get workspaces
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+import pandas as pd
+
+client = fabric.FabricRestClient()
+workspace_id =  Fabric_Capacity_WorkspaceId
+dataset_id = get_dataset_id
+
+
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/executeQueries"
+
+dax_query = {
+    "queries": [{
+        "query": "EVALUATE 'Workspaces'"
+    }],
+    "serializerSettings": {"includeNulls": True}
+}
+
+headers = {
+    "Content-Type": "application/json",
+
+}
+
+rows = []
+continuation_token = None
+
+while True:
+    query_payload = dax_query.copy()
+    if continuation_token:
+        query_payload["continuationToken"] = continuation_token
+
+    resp = client.post(url, headers=headers, json=query_payload)
+    result = resp.json()
+
+    # Parse rows
+    new_rows = result['results'][0]['tables'][0]['rows']
+    rows.extend(new_rows)
+
+    # Check for next page
+    continuation_token = result['results'][0].get('continuationToken')
+    if not continuation_token:
+        break
+
+df_workspace_data = pd.DataFrame(rows)
+```
+
+```
+# Get capacity Units Info
+import sempy.fabric as fabric
+from sempy.fabric.exceptions import FabricHTTPException
+import pandas as pd
+
+client = fabric.FabricRestClient()
+workspace_id =  Fabric_Capacity_WorkspaceId
+dataset_id = get_dataset_id
+
+
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/executeQueries"
+
+dax_query = {
+    "queries": [{
+        "query": "EVALUATE 'CU Detail'"
+    }],
+    "serializerSettings": {"includeNulls": True}
+}
+
+headers = {
+    "Content-Type": "application/json",
+
+}
+
+rows = []
+continuation_token = None
+
+while True:
+    query_payload = dax_query.copy()
+    if continuation_token:
+        query_payload["continuationToken"] = continuation_token
+
+    resp = client.post(url, headers=headers, json=query_payload)
+    result = resp.json()
+
+    # Parse rows
+    new_rows = result['results'][0]['tables'][0]['rows']
+    rows.extend(new_rows)
+
+    # Check for next page
+    continuation_token = result['results'][0].get('continuationToken')
+    if not continuation_token:
+        break
+
+df_capacity_units_details = pd.DataFrame(rows)
+
+```
+
 
 
 We will convert the pandas DataFrame to a Spark DataFrame to ensure the data is properly inserted using Spark APIs for the Fabric Data Warehouse.
+Updated this to prevent empty dataframes from throwing an exception.
 ```
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 
 #Convert a Pandas DataFrame to a PySpark DataFrame, as the dataframes retrieved from sempy.fabric are initially in Pandas format.
-df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
-df_items_table_spark = spark.createDataFrame(df_items_table)
-df_workspace_data_spark = spark.createDataFrame(df_workspace_data)   ## Added for FabricWorkspaces table to show active workspace flags in the event workspace name has been altered
-df_capacity_units_details_spark= spark.createDataFrame(df_capacity_units_details) # Added to track capacity size
+
+# Define df_metrics_by_item_day_table to prevent exceptions
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, LongType, TimestampType
+
+df_metrics_by_item_day_table_schema = StructType([
+    StructField("DateTime", TimestampType(), True),
+    StructField("Date", TimestampType(), True),
+    StructField("PremiumCapacityId", StringType(), True),
+    StructField("ItemId", StringType(), True),
+    StructField("sum_CU", FloatType(), True),
+    StructField("sum_duration", FloatType(), True),
+    StructField("count_operations", LongType(), True),
+    StructField("count_users", LongType(), True),
+    StructField("percentile_DurationMs_50", FloatType(), True),
+    StructField("percentile_DurationMs_90", FloatType(), True),
+    StructField("avg_DurationMS", FloatType(), True),
+    StructField("Throttling (min)", FloatType(), True),
+    StructField("count_failure_operations", LongType(), True),
+    StructField("count_rejected_operations", LongType(), True),
+    StructField("count_successful_operations", LongType(), True),
+    StructField("count_InProgress_operations", LongType(), True),
+    StructField("count_cancelled_operations", LongType(), True),
+    StructField("count_Invalid_operations", LongType(), True),
+    StructField("WorkspaceId", StringType(), True),
+    StructField("UniqueKey", StringType(), True)
+])
+
+# Check if the pandas DataFrame is empty
+if df_metrics_by_item_day_table.empty:
+    # Create an empty Spark DataFrame with schema
+    df_metrics_by_item_spark = spark.createDataFrame([], df_metrics_by_item_day_table_schema)
+else:
+    # Create Spark DataFrame from Pandas
+    df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
+
+
+# Define df_items_table to prevent exceptions
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+
+df_items_table_schema = StructType([
+    StructField("capacityId", StringType(), True),
+    StructField("ItemId", StringType(), True),
+    StructField("ItemKind", StringType(), True),
+    StructField("ItemName", StringType(), True),
+    StructField("dcount_Identity", StringType(), True),
+    StructField("Timestamp", TimestampType(), True),
+    StructField("WorkspaceId", StringType(), True),
+    StructField("WorkspaceName", StringType(), True),
+    StructField("Billable type", StringType(), True),
+    StructField("IsVirtualArtifactName", StringType(), True),
+    StructField("IsVirtualWorkspaceName", StringType(), True),
+    StructField("IsVirtualArtifactStatus", StringType(), True),
+    StructField("IsVirtualWorkspaceStatus", StringType(), True),
+    StructField("UniqueKey", StringType(), True),
+    StructField("ItemKey", StringType(), True)
+])
+
+
+
+# Check if the pandas DataFrame is empty
+if df_items_table.empty:
+    # Create an empty Spark DataFrame with schema
+    df_items_table_spark = spark.createDataFrame([], df_items_table_schema)
+else:
+    # Create Spark DataFrame from Pandas
+    df_items_table_spark = spark.createDataFrame(df_items_table)
+
+
+# Define df_workspace_data to prevent exceptions 
+from pyspark.sql.types import StructType, StructField, StringType, BooleanType
+
+df_workspace_data_schema = StructType([
+    StructField("Id", StringType(), True),
+    StructField("Is Read Only", BooleanType(), True),
+    StructField("Is On Dedicated Capacity", BooleanType(), True),
+    StructField("Capacity Id", StringType(), True),
+    StructField("Default Dataset Storage Format", StringType(), True),
+    StructField("Type", StringType(), True),
+    StructField("Name", StringType(), True)
+])
+
+
+# Check if the pandas DataFrame is empty
+if capacity_workspace_check.empty:
+    # Create an empty Spark DataFrame with schema
+    df_workspace_data_spark = spark.createDataFrame([], df_workspace_data_schema)   
+else:
+    # Create Spark DataFrame from Pandas
+    df_workspace_data_spark= spark.createDataFrame(df_workspace_data)  ## Added for FabricWorkspaces table to show active workspace flags in the event workspace name has been altered
+
+
+
+
+# Define capacity_units_details to prevent exceptions
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, LongType, TimestampType
+capacity_units_details_schema = StructType([
+    StructField("WindowStartTime", TimestampType(), True),
+    StructField("Interactive", FloatType(), True),
+    StructField("Background", FloatType(), True),
+    StructField("InteractivePreview", FloatType(), True),
+    StructField("BackgroundPreview", FloatType(), True),
+    StructField("Interactive Delay %", FloatType(), True),
+    StructField("Interactive Rejection %", FloatType(), True),
+    StructField("Background Rejection %", FloatType(), True),
+    StructField("AutoScaleCapacityUnits", LongType(), True),
+    StructField("StartOfHour", TimestampType(), True),
+    StructField("CUs", FloatType(), True),
+    StructField("BaseCapacityUnits", LongType(), True),
+    StructField("WindowEndTime", TimestampType(), True),
+    StructField("Threshold", FloatType(), True),
+    StructField("StartOf6min", TimestampType(), True),
+    StructField("Peak6minInteractive", FloatType(), True),
+    StructField("Peak6minBackground", FloatType(), True),
+    StructField("Peak6minInteractivePreview", FloatType(), True),
+    StructField("Peak6minBackgroundPreview", FloatType(), True),
+    StructField("Peak6min Interactive Delay %", FloatType(), True),
+    StructField("Peak6min Interactive Rejection %", FloatType(), True),
+    StructField("Peak6min Background Rejection %", FloatType(), True),
+    StructField("Start of Hour", TimestampType(), True),
+    StructField("CU Limit", FloatType(), True),
+    StructField("SKU", StringType(), True)
+])
+
+# Check if the pandas DataFrame is empty
+if df_capacity_units_details.empty:
+    # Create an empty Spark DataFrame with schema
+    df_capacity_units_details_spark = spark.createDataFrame([], capacity_units_details_schema)
+else:
+    # Create Spark DataFrame from Pandas
+    df_capacity_units_details_spark = spark.createDataFrame(df_capacity_units_details) # Added to track capacity size
+
 ```
+
+
+Function that will be used to remove extra brackets and table name from the names: 
+```
+import re
+from functools import reduce
+
+def strip_brackets(colname):
+    # Extract everything inside [ ]
+    match = re.search(r"\[(.*)\]", colname)
+    return match.group(1) if match else colname
+
+```
+
+
+
 
 Capacity Metrics Usage Inserts Section
 This section is very important, as the section without comments will only be executed the first time.
@@ -282,30 +609,41 @@ This approach ensures that there are no duplicate records and only new inserts a
 Please adjust the table name if needed, but all other parameters should maintain their respective variables.
 ```
 # Process Capacity Metrics Inserts
+# Process Capacity Metrics Inserts
 from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
+# Remove extra brackets and table name from columns names  
+if not df_metrics_by_item_spark.isEmpty():
+    old_cols = df_metrics_by_item_spark.columns
+    new_cols = [strip_brackets(c) for c in old_cols]
 
-#⚠️ Warning:** THIS IS IMPORTANT.
-#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
-# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-df_metrics_by_item_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+    df_metrics_by_item_spark_df_renamed = reduce(
+        lambda temp_df, idx: temp_df.withColumnRenamed(old_cols[idx], new_cols[idx]),
+        range(len(old_cols)),
+        df_metrics_by_item_spark
+    )
+    #⚠️ Warning:** THIS IS IMPORTANT.
+    #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+    # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+    df_metrics_by_item_spark_df_renamed.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics2")
 
-# #⚠️ Warning:** THIS IS IMPORTANT.
-# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
-# # Delta Section 
-# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-# comparison_columns = ["DateTime", "PremiumCapacityId", "ItemId", "sum_CU", "sum_duration", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
+    # #⚠️ Warning:** THIS IS IMPORTANT.
+    # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
+    # # Delta Section 
+    # #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+    # comparison_columns = ["DateTime", "PremiumCapacityId", "ItemId", "sum_CU", "sum_duration", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
-# #Step 1: Read existing data from the Fabric Warehouse
-# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+    # #Step 1: Read existing data from the Fabric Warehouse
+    # df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
 
 
-# #Step 2: Identify new records using left_anti on multiple columns above
-# df_new_metric_insert = df_metrics_by_item_spark.join(df_current_metric_table, comparison_columns, "left_anti")
+    # #Step 2: Identify new records using left_anti on multiple columns above
+    # df_new_metric_insert = df_metrics_by_item_spark_df_renamed.join(df_current_metric_table, comparison_columns, "left_anti")
 
-# #Step 3: Append only new records to Fabric Warehouse for each invocation
-# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+    # #Step 3: Append only new records to Fabric Warehouse for each invocation
+    # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+
 ```
 
 
@@ -320,24 +658,33 @@ from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-#⚠️ Warning:** THIS IS IMPORTANT.
-#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
-# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-df_items_table_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems")
+if not df_items_table_spark.isEmpty():
+    old_cols = df_items_table_spark.columns
+    new_cols = [strip_brackets(c) for c in old_cols]
 
-# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
-# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-# comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
+    df_items_table_spark_df_renamed = reduce(
+        lambda temp_df, idx: temp_df.withColumnRenamed(old_cols[idx], new_cols[idx]),
+        range(len(old_cols)),
+        df_items_table_spark
+    )
+    #⚠️ Warning:** THIS IS IMPORTANT.
+    #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+    # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+    df_items_table_spark_df_renamed.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems")
 
-# #Step 1: Read existing data from the Fabric Warehouse
-# df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
+    # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+    # #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+    # comparison_columns = ["capacityId", "ItemId", "ItemKind", "ItemName", "Timestamp", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
+
+    # #Step 1: Read existing data from the Fabric Warehouse
+    # df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 
 
-# #Step 2: Identify new records using left_anti on multiple columns above
-# df_new_metric_insert = df_items_table_spark.join(df_current_metric_table, comparison_columns, "left_anti")
+    # #Step 2: Identify new records using left_anti on multiple columns above
+    # df_new_metric_insert = df_items_table_spark_df_renamed.join(df_current_metric_table, comparison_columns, "left_anti")
 
-# #Step 3: Append only new records to Fabric Warehouse for each invocation
-# df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
+    # #Step 3: Append only new records to Fabric Warehouse for each invocation
+    # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricItems") # Update Table Name as needed
 ```
 
 ⚠️ Warning ONLY RUN THIS ONCE IF YOU ALREADY HAVE DATA IN THE TABLE IN THE DATA WAREHOUSE. THIS WILL NEVER BE RUN AGAIN AS THE PYSPARK LOGIC WILL TAKE CARE OF THIS! 
@@ -358,65 +705,72 @@ from pyspark.sql.functions import col, lit, current_timestamp
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-# #⚠️ Warning:** THIS IS IMPORTANT.
-# #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
-# # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-#df_workspace_data_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+if not df_workspace_data_spark.isEmpty():
+    old_cols = df_workspace_data_spark.columns
+    new_cols = [strip_brackets(c) for c in old_cols]
+
+    df_workspace_data_spark_df_renamed = reduce(
+        lambda temp_df, idx: temp_df.withColumnRenamed(old_cols[idx], new_cols[idx]),
+        range(len(old_cols)),
+        df_workspace_data_spark
+    )
+    # #⚠️ Warning:** THIS IS IMPORTANT.
+    # #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+    # # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+    df_workspace_data_spark_df_renamed.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
 
 
-# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
-all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
+    # # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack⬇️ 
+    # all_cols = ["WorkspaceId","WorkspaceKey","WorkspaceName","PremiumCapacityId","WorkspaceProvisionState"]
 
 
-# 1) Read current FabricWorkspaces table
-df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
-         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
-         .select(*all_cols)
-)
+    # # 1) Read current FabricWorkspaces table
+    # df_current = (spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID)
+    #         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+    #         .select(*all_cols)
+    # )
 
-# 2) Select new incoming data
-df_new = df_workspace_data_spark.select(*all_cols)
+    # # 2) Select new incoming data
+    # df_new = df_workspace_data_spark_df_renamed.select(*all_cols)
 
-# 3) Identify "already existing" exact matches (no change)
-df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
+    # # 3) Identify "already existing" exact matches (no change)
+    # df_existing_exact = df_current.join(df_new, on=all_cols, how="inner")
 
-# 4) Identify rows needing deactivation (ID+Key match but Name changed)
-df_to_deactivate = (
-    df_current.alias("curr")
-        .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
-        .filter(
-            (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
-            (col("curr.WorkspaceProvisionState") != lit("Inactive"))
-        )
-        .select("curr.*")
-        .withColumn("WorkspaceProvisionState", lit("Inactive"))
+    # # 4) Identify rows needing deactivation (ID+Key match but Name changed)
+    # df_to_deactivate = (
+    #     df_current.alias("curr")
+    #         .join(df_new.alias("new"), on=["WorkspaceId", "WorkspaceKey"], how="inner")
+    #         .filter(
+    #             (col("curr.WorkspaceName") != col("new.WorkspaceName")) &
+    #             (col("curr.WorkspaceProvisionState") != lit("Inactive"))
+    #         )
+    #         .select("curr.*")
+    #         .withColumn("WorkspaceProvisionState", lit("Inactive"))
 
-)
-
-
-# 5) Identify *truly new* rows (not already in full table)
-df_new_only = (
-    df_new.alias("new")
-        .join(df_current.alias("curr"), on=all_cols, how="left_anti")
-)
+    # )
 
 
-# 6) Combine: rows to deactivate + truly new rows
-df_to_insert = df_to_deactivate.unionByName(df_new_only)
+    # # 5) Identify *truly new* rows (not already in full table)
+    # df_new_only = (
+    #     df_new.alias("new")
+    #         .join(df_current.alias("curr"), on=all_cols, how="left_anti")
+    # )
 
-# 7) Only write if there’s anything to insert
-if df_to_insert.count() > 0:
-    df_to_insert.write \
-        .mode("append") \
-        .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
-        .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
-else:
-    print("✅ No changes needed — nothing inserted.")
+
+    # # 6) Combine: rows to deactivate + truly new rows
+    # df_to_insert = df_to_deactivate.unionByName(df_new_only)
+
+    # # 7) Only write if there’s anything to insert
+    # if df_to_insert.count() > 0:
+    #     df_to_insert.write \
+    #         .mode("append") \
+    #         .option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID) \
+    #         .synapsesql(f"{FabricWarehouseName}.dbo.FabricWorkspaces")
+    # else:
+    #     print("✅ No changes needed — nothing inserted.")
 
 
 ```
-
-
 
 
 
@@ -429,26 +783,35 @@ from pyspark.sql.functions import col
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants  
 
-#⚠️ Warning:** THIS IS IMPORTANT.
-#⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
-# The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
-df_capacity_units_details_spark.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+if not df_capacity_units_details_spark.isEmpty():
+    old_cols = df_capacity_units_details_spark.columns
+    new_cols = [strip_brackets(c) for c in old_cols]
 
-# #⚠️ Warning:** THIS IS IMPORTANT.
-# #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
-# # Delta Section 
-# #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
-# comparison_columns = ["WindowStartTime", "StartOfHour", "WindowEndTime", "Start of Hour", "SKU" ]  #Using following columns as a unique key for  join
+    df_capacity_units_details_spark_df_renamed = reduce(
+        lambda temp_df, idx: temp_df.withColumnRenamed(old_cols[idx], new_cols[idx]),
+        range(len(old_cols)),
+        df_capacity_units_details_spark
+    )
+    #⚠️ Warning:** THIS IS IMPORTANT.
+    #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
+    # The table will be auto-created; adjust the table name as necessary, the variable above will be used for the below.
+    df_capacity_units_details_spark_df_renamed.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
 
-# #Step 1: Read existing data from the Fabric Warehouse
-# df_current_capacity_units_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+    # #⚠️ Warning:** THIS IS IMPORTANT.
+    # #⚠️⬇️Uncomment the below section after the first above run, all subsequent runs moving forward should use the below code stack not the above!⬇️
+    # # Delta Section 
+    # #Columns utilized for comparison to ensure that only new delta records are inserted, using unique keys
+    # comparison_columns = ["WindowStartTime", "StartOfHour", "WindowEndTime", "Start of Hour", "SKU" ]  #Using following columns as a unique key for  join
+
+    # #Step 1: Read existing data from the Fabric Warehouse
+    # df_current_capacity_units_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
 
 
-# #Step 2: Identify new records using left_anti on multiple columns above
-# df_new_capacity_units_insert = df_capacity_units_details_spark.join(df_current_capacity_units_table, comparison_columns, "left_anti")
+    # #Step 2: Identify new records using left_anti on multiple columns above
+    # df_new_capacity_units_insert = df_capacity_units_details_spark_df_renamed.join(df_current_capacity_units_table, comparison_columns, "left_anti")
 
-# #Step 3: Append only new records to Fabric Warehouse for each invocation
-# df_new_capacity_units_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
+    # #Step 3: Append only new records to Fabric Warehouse for each invocation
+    # df_new_capacity_units_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityUnitsDetails")
 
 ```
 
