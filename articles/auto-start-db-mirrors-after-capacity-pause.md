@@ -79,6 +79,8 @@ from automationassets import AutomationAssetNotFound
 FABRIC_API_BASE = "https://api.fabric.microsoft.com/v1"
 
 
+
+
 def get_access_token(scope):
     tenant_id = automationassets.get_automation_variable("TENANT_ID")
     print(tenant_id)
@@ -130,6 +132,7 @@ def control_mirroring(workspace_id, mirrored_db_id, action, token):
 def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, capacity_id ):
     fabric_token = get_access_token("https://api.fabric.microsoft.com/.default")
 
+    #capacity_id, capacity_display_name = find_capacity_by_custom_property(fabric_token, capacity_name)
     print(f"Using capacity: {capacity_name} ({capacity_id})")
 
     workspaces = list_workspaces_by_capacity(capacity_id, fabric_token)
@@ -147,7 +150,33 @@ def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_nam
             control_mirroring(workspace_id, db_id, "start", fabric_token)
 
 
-# Parse Pyaload for resource group and capacity name as the {"WebhookName","RequestBody" throws an exception 
+
+# -------------------------------------
+# Fix non-JSON "key:val,key:val" format
+# -------------------------------------
+def parse_loose_payload(text: str) -> dict:
+    """
+    Convert a non-standard JSON-like string (e.g., WebhookName:abc,RequestBody:"{...}") into a proper dictionary.
+    """
+    result = {}
+    parts = re.split(r',(?=[\w-]+:)', text)  # split on commas, keep colons
+    for part in parts:
+        if ':' not in part:
+            continue
+        key, value = part.split(':', 1)
+        key = key.strip()
+        value = value.strip()
+
+        # Unwrap quotes if present
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        result[key] = value
+    return result
+
+
+# -------------------------------------
+# Parse ARM scope into components
+# -------------------------------------
 def parse_scope(scope: str):
     pattern = (
         r"^/subscriptions/(?P<subscription_id>[^/]+)"
@@ -159,14 +188,16 @@ def parse_scope(scope: str):
         raise ValueError(f"Scope did not match expected format: {scope!r}")
     return m.group("subscription_id"), m.group("resource_group"), m.group("capacity_name")
 
-# Extract scope and all 'properties' dictionaries from a JSON payload or dict
-def extract_scope_and_properties(payload):
-    if isinstance(payload, dict):
-        data = payload
-    else:
-        data = json.loads(payload)
 
-    # Recursively find the scope
+# -------------------------------------
+# Extract scope and properties
+# -------------------------------------
+def extract_scope_and_properties(payload):
+    if isinstance(payload, str):
+        data = json.loads(payload)
+    else:
+        data = payload
+
     def find_scope(d):
         if isinstance(d, dict):
             if 'scope' in d:
@@ -182,7 +213,6 @@ def extract_scope_and_properties(payload):
                     return s
         return None
 
-    # Recursively collect all 'properties' blocks
     def find_all_props(d, found=None):
         if found is None:
             found = []
@@ -200,7 +230,10 @@ def extract_scope_and_properties(payload):
     props_list = find_all_props(data)
     return scope, props_list
 
-# Choose capacity ID based on capacity name
+
+# -------------------------------------
+# Choose matching capacity_id
+# -------------------------------------
 def choose_capacity_id(props_list, capacity_name):
     for props in props_list:
         for k in props:
@@ -212,21 +245,30 @@ def choose_capacity_id(props_list, capacity_name):
         return key, first_props[key]
     return None, None
 
+
+# -------------------------------------
+# Main execution logic
+# -------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise Exception("Missing JSON payload. Usage: <json_payload>")
 
     raw_payload = "".join(sys.argv[1:]).strip()
-    print("Raw Payload: ", raw_payload)
+    print("Raw Payload:", raw_payload)
 
-    # Try parsing the payload directly
+    # Step 1: Attempt direct JSON parse
     try:
         parsed_top_level = json.loads(raw_payload)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Top-level JSON could not be parsed: {e}")
+    except json.JSONDecodeError:
+        # Try to pre-process as loose key:val string
+        print("Attempting loose payload parsing...")
+        try:
+            parsed_top_level = parse_loose_payload(raw_payload)
+        except Exception as e:
+            raise ValueError(f"Failed to parse non-JSON payload: {e}")
 
-    # Handle case where actual content is inside "RequestBody" as a string
-    if "RequestBody" in parsed_top_level and isinstance(parsed_top_level["RequestBody"], str):
+    # Step 2: Check for embedded JSON in RequestBody
+    if "RequestBody" in parsed_top_level:
         try:
             parsed_data = json.loads(parsed_top_level["RequestBody"])
         except json.JSONDecodeError as e:
@@ -234,24 +276,25 @@ if __name__ == "__main__":
     else:
         parsed_data = parsed_top_level
 
-    print("Parsed JSON Data: ", parsed_data)
+    print("Parsed Data Object:")
+    print(json.dumps(parsed_data, indent=2))
 
-
-    # Parse the JSON body
+    # Step 3: Extract scope and properties
     scope, props_list = extract_scope_and_properties(parsed_data)
+    if not scope:
+        raise ValueError("No 'scope' found in the payload")
 
-    # extract scope components and capacity ID
     subscription_id, resource_group, capacity_name = parse_scope(scope)
     key_id, cap_id = choose_capacity_id(props_list, capacity_name)
 
     print("Scope:", scope)
-    print("Parsed -> Subscription ID:", subscription_id)
-    print("Parsed -> Resource Group: ", resource_group)
-    print("Parsed -> Capacity Name: ", capacity_name)
-    print("Chosen Key:", key_id)
+    print("Subscription ID:", subscription_id)
+    print("Resource Group:", resource_group)
+    print("Capacity Name:", capacity_name)
+    print("Key ID:", key_id)
     print("Capacity ID:", cap_id)
 
-    # Start the process 
+    # Now call your restart logic
     restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, cap_id)
 
 ```
