@@ -78,6 +78,7 @@ from automationassets import AutomationAssetNotFound
 
 FABRIC_API_BASE = "https://api.fabric.microsoft.com/v1"
 
+
 def get_access_token(scope):
     tenant_id = automationassets.get_automation_variable("TENANT_ID")
     print(tenant_id)
@@ -146,7 +147,7 @@ def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_nam
             control_mirroring(workspace_id, db_id, "start", fabric_token)
 
 
-# Parse Pyaload for resource group and capacity name
+# Parse Pyaload for resource group and capacity name as the {"WebhookName","RequestBody" throws an exception 
 def parse_scope(scope: str):
     pattern = (
         r"^/subscriptions/(?P<subscription_id>[^/]+)"
@@ -216,28 +217,25 @@ if __name__ == "__main__":
         raise Exception("Missing JSON payload. Usage: <json_payload>")
 
     raw_payload = "".join(sys.argv[1:]).strip()
-    print("The RAW PAYLOAD IS: ", raw_payload)
+    print("Raw Payload: ", raw_payload)
 
-    # Find the JSON section starting at {"schemaId" as the {WebhookName:Alert1744764717556,RequestBody: will case an error
-    idx = raw_payload.find('{"schemaId"')
-    if idx == -1:
-        raise ValueError('Could not find {"schemaId" in the payload')
+    # Try parsing the payload directly
+    try:
+        parsed_top_level = json.loads(raw_payload)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Top-level JSON could not be parsed: {e}")
 
-    # Extract the substring with balanced braces
-    brace_count = 0
-    end = idx
-    for pos, ch in enumerate(raw_payload[idx:], idx):
-        if ch == '{':
-            brace_count += 1
-        elif ch == '}':
-            brace_count -= 1
-            if brace_count == 0:
-                end = pos + 1
-                break
+    # Handle case where actual content is inside "RequestBody" as a string
+    if "RequestBody" in parsed_top_level and isinstance(parsed_top_level["RequestBody"], str):
+        try:
+            parsed_data = json.loads(parsed_top_level["RequestBody"])
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Could not parse 'RequestBody' as JSON: {e}")
+    else:
+        parsed_data = parsed_top_level
 
-    json_section = raw_payload[idx:end]
-    parsed_data = json.loads(json_section)
-    print("The PAYLOAD IS: ", parsed_data)
+    print("Parsed JSON Data: ", parsed_data)
+
 
     # Parse the JSON body
     scope, props_list = extract_scope_and_properties(parsed_data)
