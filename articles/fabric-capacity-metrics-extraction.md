@@ -635,14 +635,14 @@ if not df_metrics_by_item_spark.isEmpty():
     # comparison_columns = ["DateTime", "PremiumCapacityId", "ItemId", "sum_CU", "sum_duration", "WorkspaceId", "UniqueKey" ]  #Using following columns as a unique key for  join
 
     # #Step 1: Read existing data from the Fabric Warehouse
-    # df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+    # df_current_metric_table = spark.read.option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).option(Constants.DatawarehouseId, FabricWarehouseID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics2")
 
 
     # #Step 2: Identify new records using left_anti on multiple columns above
     # df_new_metric_insert = df_metrics_by_item_spark_df_renamed.join(df_current_metric_table, comparison_columns, "left_anti")
 
     # #Step 3: Append only new records to Fabric Warehouse for each invocation
-    # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics")
+    # df_new_metric_insert.write.mode("append").option(Constants.WorkspaceId, FabircWarehouse_WorkSpace_ID).synapsesql(f"{FabricWarehouseName}.dbo.FabricCapacityMetrics2")
 
 ```
 
