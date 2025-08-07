@@ -78,8 +78,6 @@ from automationassets import AutomationAssetNotFound
 
 FABRIC_API_BASE = "https://api.fabric.microsoft.com/v1"
 
-# All the functions we need to make the API calls are here:
-
 def get_access_token(scope):
     tenant_id = automationassets.get_automation_variable("TENANT_ID")
     print(tenant_id)
@@ -131,7 +129,6 @@ def control_mirroring(workspace_id, mirrored_db_id, action, token):
 def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, capacity_id ):
     fabric_token = get_access_token("https://api.fabric.microsoft.com/.default")
 
-    #capacity_id, capacity_display_name = find_capacity_by_custom_property(fabric_token, capacity_name)
     print(f"Using capacity: {capacity_name} ({capacity_id})")
 
     workspaces = list_workspaces_by_capacity(capacity_id, fabric_token)
@@ -145,10 +142,11 @@ def restart_mirroring_for_capacity(subscription_id, resource_group, capacity_nam
             db_id = db.get("id")
             print(f"Restarting mirroring for DB: {db_id}")
             control_mirroring(workspace_id, db_id, "stop", fabric_token)
-            time.sleep(120)  ## provide more time for larger dbs
+            time.sleep(130)
             control_mirroring(workspace_id, db_id, "start", fabric_token)
 
 
+# Parse Pyaload for resource group and capacity name
 def parse_scope(scope: str):
     pattern = (
         r"^/subscriptions/(?P<subscription_id>[^/]+)"
@@ -160,86 +158,104 @@ def parse_scope(scope: str):
         raise ValueError(f"Scope did not match expected format: {scope!r}")
     return m.group("subscription_id"), m.group("resource_group"), m.group("capacity_name")
 
-
-
-# Main entry of the code the invoke the above functions 
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        raise Exception("Missing parameters. Usage: <subscription_id> <resource_group> <capacity_name>")
-    
-    # This is how python get the payload it can have several parts, we just need the first three for this process
-    fabric_meta_data1 = sys.argv[1]
-    fabric_meta_data2 = sys.argv[2]
-    fabric_meta_data3 = sys.argv[3]
-
-
-    # We will use a basic parcer 
-    raw = fabric_meta_data1
-    m = re.search(r'"scope"\s*:\s*"([^"]+)"', raw)
-    if not m:
-        raise ValueError("Couldn't find scope in payload")
-    scope = m.group(1)
-
-
-
-    fabric_output_data=parse_scope(scope)
-    # Debug output
-    print(f"The output is: {fabric_output_data[0]}, {fabric_output_data[1]},  {fabric_output_data[2]}")
-
-    # Getting Matched capacity name from the potential list of names and IDs
-    capacity_aggregrated= f"{fabric_meta_data1}{fabric_meta_data2}{fabric_meta_data3}"
-    print(capacity_aggregrated)
-    # 1) pull out the scope so we know what capacity_name to look for
-    m = re.search(r'"scope"\s*:\s*"([^"]+)"', capacity_aggregrated)
-    if not m:
-        raise ValueError("Couldn't find scope in payload")
-    scope = m.group(1)
-
-    # 2) parse out the ARM‐style capacity_name
-    scope_pattern = (
-        r"^/subscriptions/[^/]+"
-        r"/resourceGroups/[^/]+"
-        r"/providers/Microsoft\.Fabric/capacities/(?P<capacity_name>[^/]+)$"
-    )
-    m2 = re.match(scope_pattern, scope)
-    if not m2:
-        raise ValueError(f"Scope did not match format: {scope!r}")
-    capacity_name = m2.group("capacity_name")
-
-    # 3) grab *all* "properties":{…} blocks and pick the last one as this may show up a few times in the payload
-    blocks = re.findall(r'"properties"\s*:\s*(\{[^}]+\})', capacity_aggregrated)
-    if not blocks:
-        raise ValueError("No properties blocks found in payload")
-    fab_props = json.loads(blocks[-1])  
-
-    # DEBUG: see what I actually have if needed
-    print("capacity_name =", capacity_name)
-    print("fab_props.keys() =", list(fab_props.keys()))
-
-    # 4) try to match keys that start with capacity_name
-    matches = [k for k in fab_props if k.startswith(capacity_name)]
-
-    if matches:
-        # pick the *first* matching one
-        chosen_key = matches[0]
-        capacity_id = fab_props[chosen_key]
+# Extract scope and all 'properties' dictionaries from a JSON payload or dict
+def extract_scope_and_properties(payload):
+    if isinstance(payload, dict):
+        data = payload
     else:
-        # fallback: if at least two entries, pick the SECOND one
-        items = list(fab_props.items())
-        if len(items) >= 2:
-            chosen_key, capacity_id = items[1]
-        else:
-            # only one entry, use it
-            chosen_key, capacity_id = items[0]
+        data = json.loads(payload)
 
-    print(f"chosen_key = {chosen_key}")
-    print(f"capacity_id = {capacity_id}")
+    # Recursively find the scope
+    def find_scope(d):
+        if isinstance(d, dict):
+            if 'scope' in d:
+                return d['scope']
+            for v in d.values():
+                s = find_scope(v)
+                if s:
+                    return s
+        elif isinstance(d, list):
+            for v in d:
+                s = find_scope(v)
+                if s:
+                    return s
+        return None
 
-    subscription_id=fabric_output_data[0]
-    resource_group=fabric_output_data[1]
-    capacity_name=fabric_output_data[2]
+    # Recursively collect all 'properties' blocks
+    def find_all_props(d, found=None):
+        if found is None:
+            found = []
+        if isinstance(d, dict):
+            if 'properties' in d and isinstance(d['properties'], dict):
+                found.append(d['properties'])
+            for v in d.values():
+                find_all_props(v, found)
+        elif isinstance(d, list):
+            for v in d:
+                find_all_props(v, found)
+        return found
 
-    restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, capacity_id )
+    scope = find_scope(data)
+    props_list = find_all_props(data)
+    return scope, props_list
+
+# Choose capacity ID based on capacity name
+def choose_capacity_id(props_list, capacity_name):
+    for props in props_list:
+        for k in props:
+            if k.startswith(capacity_name):
+                return k, props[k]
+    if props_list:
+        first_props = props_list[0]
+        key = next(iter(first_props))
+        return key, first_props[key]
+    return None, None
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        raise Exception("Missing JSON payload. Usage: <json_payload>")
+
+    raw_payload = "".join(sys.argv[1:]).strip()
+    print("The RAW PAYLOAD IS: ", raw_payload)
+
+    # Find the JSON section starting at {"schemaId" as the {WebhookName:Alert1744764717556,RequestBody: will case an error
+    idx = raw_payload.find('{"schemaId"')
+    if idx == -1:
+        raise ValueError('Could not find {"schemaId" in the payload')
+
+    # Extract the substring with balanced braces
+    brace_count = 0
+    end = idx
+    for pos, ch in enumerate(raw_payload[idx:], idx):
+        if ch == '{':
+            brace_count += 1
+        elif ch == '}':
+            brace_count -= 1
+            if brace_count == 0:
+                end = pos + 1
+                break
+
+    json_section = raw_payload[idx:end]
+    parsed_data = json.loads(json_section)
+    print("The PAYLOAD IS: ", parsed_data)
+
+    # Parse the JSON body
+    scope, props_list = extract_scope_and_properties(parsed_data)
+
+    # extract scope components and capacity ID
+    subscription_id, resource_group, capacity_name = parse_scope(scope)
+    key_id, cap_id = choose_capacity_id(props_list, capacity_name)
+
+    print("Scope:", scope)
+    print("Parsed -> Subscription ID:", subscription_id)
+    print("Parsed -> Resource Group: ", resource_group)
+    print("Parsed -> Capacity Name: ", capacity_name)
+    print("Chosen Key:", key_id)
+    print("Capacity ID:", cap_id)
+
+    # Start the process 
+    restart_mirroring_for_capacity(subscription_id, resource_group, capacity_name, cap_id)
+
 ```
 
 
