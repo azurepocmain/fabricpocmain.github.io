@@ -2,7 +2,7 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
-- ***8-13-2025*** The recent update to the Fixed Capacity Metric application (version 40) introduced an issue affecting the read table function for required tables.
+- ***8-13-2025*** The recent update to the Capacity Metric application (version 40) introduced an issue affecting the read table python function for required tables, the new code reverts to the API call.
 
 - ***8-6-2025***
 
