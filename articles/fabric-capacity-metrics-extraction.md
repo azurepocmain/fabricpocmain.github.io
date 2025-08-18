@@ -2,7 +2,7 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
-- ***8-13-2025*** The recent update to the Capacity Metric application (version 40) introduced an issue affecting the read table python function for required tables, the new code reverts to the API call.
+- ***8-13-2025*** The recent update to the Capacity Metric application (version 40) introduced a change in the read table function that no longer allows us to read from the table via python sempy.fabric library. Therefore, we will leverage an API to perform the read operations. 
 
 - ***8-6-2025***
 
