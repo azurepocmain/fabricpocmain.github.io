@@ -162,7 +162,7 @@ url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{datas
 
 dax_query = {
     "queries": [{
-        "query": "EVALUATE 'Storage By Workspaces And Day'"
+        "query": "EVALUATE 'Workspaces'"
     }],
     "serializerSettings": {"includeNulls": True}
 }
@@ -192,7 +192,7 @@ while True:
     if not continuation_token:
         break
 
-df_storage_usage_data = pd.DataFrame(rows)
+df_workspace_data  = pd.DataFrame(rows)
 
 
 ```
