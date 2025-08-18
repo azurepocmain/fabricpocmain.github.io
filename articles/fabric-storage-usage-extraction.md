@@ -11,20 +11,20 @@ However, since Fabric Chargeback is currently in public preview, this documentat
 
 **Steps: Fabric Capacity Metrics Extraction**
 
-*Step1:*
+# *Step1:*
 Firstly, download the Fabric Capacity Metrics App by navigating to AppSource > Microsoft Fabric Capacity Metrics and selecting "Get it now". The corresponding link is accessible here:  <a href="learn.microsoft.com/en-us/fabric/enterprise/metrics-app-install?tabs=1st" target="_blank">Install the Microsoft Fabric capacity metrics app</a>
 
-*Step2:*
+# *Step2:*
 Subsequently, configure the Capacity Metrics App by adhering to the instructions outlined in the aforementioned documentation. 
 Navigate to the Microsoft Fabric Capacity Metrics workspace via the left pane link, proceed to “Workspace settings” located on the top right, and then select “License info” followed by the edit option. Ensure that  “Pro” is selected which should be the default. The assigned capacity (Pro) remains until the extraction process initiates. This procedure has been automated, ensuring a stable and reliable extraction of Capacity Metrics App data from the semantic model via altering the capacity from Pro to Fabric. This configuration is essential, as failing to use Fabric capacity during extraction may result in permission exceptions. This approach differs from the initial solution, which kept the Capacity Metrics App capacity permanently set to Fabric, a configuration that is no longer necessary. In addition, an iterative loop has been integrated to collect telemetry data from each capacity within the environment, allowing for comprehensive resource utilization analysis.
 ![image](https://github.com/user-attachments/assets/e431c2ae-3623-49bc-85e3-ac85abf27aa2)
 
 
 
-*Step3:*
+# *Step3:*
 Finally, ensure that a Fabric Data Warehouse has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
 
-*Step4:*
+# *Step4:*
 Initialize a Spark notebook utilizing the PySpark language. Execute the code steps as follows:
 
 **PySpark Code Steps: Fabric Capacity Metrics Extraction:**
@@ -393,7 +393,7 @@ if not df_workspace_data_spark.isEmpty():
 This is important because after 14 days, the older data will be purged, as the metrics have a 14-day retention period.
 
 
-**SQL Code Steps: Fabric Storage Usage Percentabe Query:**
+# **SQL Code Steps: Fabric Storage Usage Percentabe Query:**
 
 If multiple workspace names are associated with the same workspace ID, it likely indicates that the workspace name has been updated. This change can impact the accuracy of the SQL statement referenced above.
 The following SQL query is designed to aggregate all workspace names corresponding to a single workspace ID into one column, along with percentage-based aggregations to provide a quantifiable view of these occurrences.
