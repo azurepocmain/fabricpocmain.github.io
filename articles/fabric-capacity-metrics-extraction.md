@@ -640,17 +640,17 @@ else:
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 capacities_details_schema = StructType([
     StructField("capacityId",               StringType(),   True),
-    StructField("State",                     StringType(),   True),
-    StructField("Source",                    StringType(),   True),
-    StructField("Capacity_Plan",             StringType(),   True),
-    StructField("Capacity_Number_Of_Vcores", IntegerType(),  True),
-    StructField("Capacity_Memory_GB",        DoubleType(),   True),
-    StructField("o365_Addon_Id",             StringType(),   True),
-    StructField("Mode",                      StringType(),   True),
-    StructField("Region",                    StringType(),   True),
-    StructField("Capacity_Name",             StringType(),   True),
-    StructField("SKU",                       StringType(),   True),
-    StructField("Creation_Date",             TimestampType(),True),
+    StructField("state",                     StringType(),   True),
+    StructField("source",                    StringType(),   True),
+    StructField("capacityPlan",             StringType(),   True),
+    StructField("capacityNumberOfVCores", IntegerType(),  True),
+    StructField("capacityMemoryInGB",        DoubleType(),   True),
+    StructField("o365AddonId",             StringType(),   True),
+    StructField("mode",                      StringType(),   True),
+    StructField("region",                    StringType(),   True),
+    StructField("Capacity Name",             StringType(),   True),
+    StructField("sku",                       StringType(),   True),
+    StructField("creationDate",             TimestampType(),True),
     StructField("Owners",                    StringType(),   True),  
 ])
 
@@ -1027,23 +1027,23 @@ if not df_capacities_spark.isEmpty():
 
     overrides = {
     "capacity Id":                 "capacityId",
-    "state":                       "State",
-    "source":                      "Source",
-    "Capacity plan":               "Capacity_Plan",
-    "Capacity number of Vcores":   "Capacity_Number_Of_Vcores",
-    "Capacity memory in GB":       "Capacity_Memory_GB",
-    "o365 addon Id":               "o365_Addon_Id",
-    "mode":                        "Mode",
-    "Region":                      "Region",
-    "Capacity name":               "Capacity_Name",
-    "SKU":                         "SKU",
-    "Creation date":               "Creation_Date",
+    "state":                       "state",
+    "source":                      "source",
+    "Capacity plan":               "capacityPlan",
+    "Capacity number of Vcores":   "capacityNumberOfVCores",
+    "Capacity memory in GB":       "capacityMemoryInGB",
+    "o365 addon Id":               "o365AddonId",
+    "mode":                        "mode",
+    "Region":                      "region",
+    "Capacity name":               "Capacity Name",
+    "SKU":                         "sku",
+    "Creation date":               "creationDate",
     "Owners":                      "Owners",
     }
 
 
     #  Rename 
-    df_capacities_spark_df_renamed = df_capacities_spark_df_renamed.select([F.col(c).alias(overrides[c]) for c in df_capacities_spark_df_renamed.columns])
+    _df_renamed = _df_renamed.select([F.col(c).alias(overrides[c]) for c in df_capacities_spark_df_renamed.columns])
 
     #⚠️ Warning:** THIS IS IMPORTANT.
     #⚠️INITIAL EXECUTION: Ensure this section is commented out after the initial run. This is VERY IMPORTANT or your data will have duplicate values!
