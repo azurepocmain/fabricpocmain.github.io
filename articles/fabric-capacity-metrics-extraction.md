@@ -2,6 +2,8 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- ***8-28-2025*** Added datetime conversion function for Spark for people who had specific datatypes for the original tables.
+
 - ***8-13-2025*** The recent update to the Capacity Metric application (version 40) introduced a change in the read table function that no longer allows us to read from the table via python sempy.fabric library. Therefore, we will leverage an API to perform the read operations. 
 
 - ***8-6-2025***
@@ -500,6 +502,7 @@ We will convert the pandas DataFrame to a Spark DataFrame to ensure the data is 
 Updated this to prevent empty dataframes from throwing an exception.
 ```
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import to_timestamp
 
 spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 
@@ -538,6 +541,9 @@ if df_metrics_by_item_day_table.empty:
 else:
     # Create Spark DataFrame from Pandas
     df_metrics_by_item_spark = spark.createDataFrame(df_metrics_by_item_day_table)
+    #Convert date types to the correct format 
+    df_metrics_by_item_spark = df_metrics_by_item_spark.withColumn("Metrics By Item And Day[Datetime]", to_timestamp("Metrics By Item And Day[Datetime]", "yyyy-MM-dd"))
+    df_metrics_by_item_spark = df_metrics_by_item_spark.withColumn("Metrics By Item And Day[Date]", to_timestamp("Metrics By Item And Day[Date]", "yyyy-MM-dd"))
 
 
 # Define df_items_table to prevent exceptions
@@ -561,8 +567,6 @@ df_items_table_schema = StructType([
     StructField("ItemKey", StringType(), True)
 ])
 
-
-
 # Check if the pandas DataFrame is empty
 if df_items_table.empty:
     # Create an empty Spark DataFrame with schema
@@ -570,6 +574,9 @@ if df_items_table.empty:
 else:
     # Create Spark DataFrame from Pandas
     df_items_table_spark = spark.createDataFrame(df_items_table)
+    #Convert date types to the correct format 
+    df_items_table_spark = df_items_table_spark.withColumn("Items[Timestamp]", to_timestamp("Items[Timestamp]", "yyyy-MM-dd'T'HH:mm:ss.SSS"))
+
 
 
 # Define df_workspace_data to prevent exceptions 
@@ -633,6 +640,12 @@ if df_capacity_units_details.empty:
 else:
     # Create Spark DataFrame from Pandas
     df_capacity_units_details_spark = spark.createDataFrame(df_capacity_units_details) # Added to track capacity size
+    #Convert date types to the correct format 
+    df_capacity_units_details_spark = df_capacity_units_details_spark.withColumn("CU Detail[Window start time]", to_timestamp("CU Detail[Window start time]", "yyyy-MM-dd'T'HH:mm:ss"))
+    df_capacity_units_details_spark = df_capacity_units_details_spark.withColumn("CU Detail[StartOfHour]", to_timestamp("CU Detail[StartOfHour]", "yyyy-MM-dd'T'HH:mm:ss"))
+    df_capacity_units_details_spark = df_capacity_units_details_spark.withColumn("CU Detail[Window end time]", to_timestamp("CU Detail[Window end time]", "yyyy-MM-dd'T'HH:mm:ss.SSS"))
+    df_capacity_units_details_spark = df_capacity_units_details_spark.withColumn("CU Detail[Start of 6min]", to_timestamp("CU Detail[Start of 6min]", "yyyy-MM-dd'T'HH:mm:ss"))
+    df_capacity_units_details_spark = df_capacity_units_details_spark.withColumn("CU Detail[Start of Hour]", to_timestamp("CU Detail[Start of Hour]", "yyyy-MM-dd'T'HH:mm:ss"))
 
 
 # df_capacities
@@ -640,17 +653,17 @@ else:
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 capacities_details_schema = StructType([
     StructField("capacityId",               StringType(),   True),
-    StructField("state",                     StringType(),   True),
-    StructField("source",                    StringType(),   True),
-    StructField("capacityPlan",             StringType(),   True),
-    StructField("capacityNumberOfVCores", IntegerType(),  True),
-    StructField("capacityMemoryInGB",        DoubleType(),   True),
-    StructField("o365AddonId",             StringType(),   True),
-    StructField("mode",                      StringType(),   True),
-    StructField("region",                    StringType(),   True),
-    StructField("Capacity Name",             StringType(),   True),
-    StructField("sku",                       StringType(),   True),
-    StructField("creationDate",             TimestampType(),True),
+    StructField("State",                     StringType(),   True),
+    StructField("Source",                    StringType(),   True),
+    StructField("Capacity_Plan",             StringType(),   True),
+    StructField("Capacity_Number_Of_Vcores", IntegerType(),  True),
+    StructField("Capacity_Memory_GB",        DoubleType(),   True),
+    StructField("o365_Addon_Id",             StringType(),   True),
+    StructField("Mode",                      StringType(),   True),
+    StructField("Region",                    StringType(),   True),
+    StructField("Capacity_Name",             StringType(),   True),
+    StructField("SKU",                       StringType(),   True),
+    StructField("Creation_Date",             TimestampType(),True),
     StructField("Owners",                    StringType(),   True),  
 ])
 
@@ -661,6 +674,9 @@ if df_capacities.empty:
 else:
     # Create Spark DataFrame from Pandas
     df_capacities_spark = spark.createDataFrame(df_capacities) # Added to track capacity size
+    #Convert date types to the correct format 
+    df_capacities_spark = df_capacities_spark.withColumn("Capacities[Creation date]", to_timestamp("Capacities[Creation date]", "yyyy-MM-dd'T'HH:mm:ss.SSS"))
+
 
 ```
 
