@@ -2,6 +2,8 @@
 <link rel="icon" href="articles/fabric_16_color.svg" type="image/x-icon" >
 
 ***Update Log:***
+- 8-28-2025 Added datetime conversion function for Spark for people who had specific datatypes for the original tables.
+  
 - 8-14-2025 The recent update to the Capacity Metric application (version 40) introduced a change in the read table function that no longer allows us to read from the table via python sempy.fabric library. Therefore, we will leverage an API to perform the read operations. 
 
 
@@ -208,6 +210,15 @@ spark = SparkSession.builder.appName("FabricMetrics").getOrCreate()
 df_storage_usage_data_spark = spark.createDataFrame(df_storage_usage_data)
 df_workspace_data_spark = spark.createDataFrame(df_workspace_data)
 ```
+
+Convert Date column to the correct data type. 
+```
+from pyspark.sql.functions import to_timestamp
+#Convert date types to the correct format
+df_storage_usage_data_spark = df_storage_usage_data_spark.withColumn("Storage By Workspaces And Day[Date]", to_timestamp("Storage By Workspaces And Day[Date]", "yyyy-MM-dd'T'HH:mm:ss"))
+```
+
+
 
 
 Function that will be used to remove extra brackets and table name from the column names:
