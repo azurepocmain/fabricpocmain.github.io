@@ -32,7 +32,7 @@ mssparkutils.notebook.exit(json.dumps(output_payload))
 
 # *Step3:*
 
-In your pipeline, for the notebook to which you are passing parameters, ensure that the expression in the "Base parameters" variable is formatted as shown below.
+In your pipeline, for the notebook to which you are passing parameters, ensure that the expression in the "Base parameters" variable is formatted as shown below and the "NotebookParameter1" is the pipeline Notebook name which you are getting the parameters from.
 
 ```
 @activity('NotebookParameter1').output.result.exitValue
