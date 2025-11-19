@@ -8,7 +8,7 @@ The below will provide insights regarding long term extraction and retention of 
 **Steps: Fabric Chargeback Metrics Extraction**
 
 # *Step1:*
-Firstly, download the Fabric Chargeback Reporting App by navigating to AppSource > Microsoft Fabric Capacity Metrics and selecting "Get it now".
+Firstly, download the Fabric Chargeback Reporting App by navigating to AppSource > Microsoft Fabric Chargeback Reporting and selecting "Get it now".
 
 # *Step2:*
 Ensure that a Fabric Data Warehouse has been established, as it will serve as the repository for the initial data load and subsequent delta updates.
