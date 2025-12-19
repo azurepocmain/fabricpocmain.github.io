@@ -98,7 +98,7 @@ In "Activities," select the "ForEach" loop, connect the previous "Script" activi
 ***Step: 6*** 
 Enter the "ForEach" loop, select the "Activities" tab, and add a "Script" activity to update all statistics in the database. Select the same connection as the outer script, then, select the "expression builder" to add the expression below.
 ```
-@concat('UPDATE STATISTICS ', item().full_table, ' WITH FULLSCAN;')<img width="579" height="17" alt="image" src="https://github.com/user-attachments/assets/ec769696-2950-4b7a-99bf-0051d87b4174" />
+@concat('UPDATE STATISTICS ', item().full_table, ' WITH FULLSCAN;')
 
 ```
 <img width="1051" height="175" alt="image" src="https://github.com/user-attachments/assets/d9567ff6-bb12-4718-b10a-74c34291f5a7" />
