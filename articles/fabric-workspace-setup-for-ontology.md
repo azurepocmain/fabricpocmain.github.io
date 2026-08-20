@@ -6,6 +6,7 @@
 **Step1:**
 
 Create a Microsoft Fabric capacity, ensuring that it is deployed in the appropriate region to meet any applicable data privacy and residency requirements.
+
 <img width="811" height="229" alt="image" src="https://github.com/user-attachments/assets/d82d372e-9891-41d5-8d8d-1af36cae54f9" />
 
 <img width="807" height="667" alt="image" src="https://github.com/user-attachments/assets/7dbc7e23-5dcb-4ed3-bbdb-21f6a5ea6c07" />
@@ -16,8 +17,11 @@ Create a Microsoft Fabric capacity, ensuring that it is deployed in the appropri
 Next, sign in to Microsoft Fabric, select "Workspaces" from the left navigation pane, and then choose "+ New workspace" at the bottom of the page.
 Ensure that "Fabric" is selected as the capacity. If you plan to use a semantic model larger than 1 GB, select "Large semantic model storage format" as the semantic model storage format.
 
+
 <img width="349" height="221" alt="image" src="https://github.com/user-attachments/assets/d0edabd2-e2f6-4385-9e16-12c18a5edfa8" />
+
 <img width="633" height="579" alt="image" src="https://github.com/user-attachments/assets/bf79268c-ec4c-4808-8bf9-b98b3c25a5e6" />
+
 <img width="644" height="851" alt="image" src="https://github.com/user-attachments/assets/bbf96464-2ab7-4e9a-8343-96a6a3e633b3" />
 
 **Step3:**
@@ -41,6 +45,7 @@ After selecting the required tables, choose the appropriate copy method based on
 
 <img width="975" height="456" alt="image" src="https://github.com/user-attachments/assets/f9a63bc0-fdfb-4881-a2c3-120ad263afa6" />
 
+
 **Step5:**
 
 One efficient way to join your data is to use the semantic model directly from the Lakehouse. Select "New semantic model," and record both the model ID and workspace ID.
@@ -48,15 +53,15 @@ You can then use the Microsoft Fabric semantic model APIs to create the required
 Take care to define the relationships and cardinality accurately, as they are essential to the integrity and effectiveness of the model.
 
 <img width="975" height="150" alt="image" src="https://github.com/user-attachments/assets/36a41eac-d8e8-4f71-8eb4-bae680084bb4" />
+
 <img width="513" height="625" alt="image" src="https://github.com/user-attachments/assets/b8d59079-763f-419a-80e7-5186db8c1148" />
+
 
 **Step6:**
 
 After defining the relationships, you can create the ontology directly from the semantic model.
 
 <img width="975" height="138" alt="image" src="https://github.com/user-attachments/assets/ee9ff109-0f54-48bd-a14a-59378a76d9b8" />
-
-
 
 
 **Step7:**
