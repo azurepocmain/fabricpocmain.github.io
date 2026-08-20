@@ -70,3 +70,9 @@ Check each entity to ensure that the binding look correct and add any additional
 <img width="975" height="258" alt="image" src="https://github.com/user-attachments/assets/a3c24e26-bcab-476e-b8a5-75868e866f7c" />
 
 
+# **Step8:**
+Permissions, ensure that the user has at least viewer role on the workspace or read permission on the ontology. 
+In addition, the user account must be assigned to the Lakehouse OneLake Security role with the ReadAll permission, or specific tables you would like the user to have for the bind data. 
+Without this permission, the ontology search function will be unable to access or search the data, and you will get *404* Not Found errors. 
+
+<img width="975" height="217" alt="image" src="https://github.com/user-attachments/assets/afea4353-a005-4df6-b94b-41f2a56628d8" />
